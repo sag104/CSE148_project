@@ -1,0 +1,96 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Apr 18 16:26:16 2023
+[*]
+[dumpfile] "/home/linux/ieng6/cs148sp23/sag104/CSE148_project/opt/simx.fst"
+[dumpfile_mtime] "Tue Apr 18 01:47:58 2023"
+[dumpfile_size] 97063
+[savefile] "/home/linux/ieng6/cs148sp23/sag104/CSE148_project/opt/test.gtkw"
+[timestart] 184960
+[size] 1920 816
+[pos] -39 -39
+*-4.000000 184999 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.mips_core.
+[treeopen] TOP.mips_core.FETCH_UNIT.
+[treeopen] TOP.mips_core.I_CACHE.
+[treeopen] TOP.mips_core.PR_D2E.i_alu_pass_through.
+[treeopen] TOP.mips_core.PR_I2D.i_inst.
+[treeopen] TOP.mips_core.PR_I2D.i_pc.
+[sst_width] 297
+[signals_width] 198
+[sst_expanded] 1
+[sst_vpaned_height] 233
+@204
+-reg_file
+@24
+TOP.mips_core.REG_FILE.i_wb.rw_addr[4:0]
+TOP.mips_core.REG_FILE.i_wb.rw_data[31:0]
+@204
+-pr_m2w
+@24
+TOP.mips_core.PR_M2W.i_wb.rw_addr[4:0]
+TOP.mips_core.PR_M2W.i_wb.rw_data[31:0]
+@204
+-mem_stage_glue
+@24
+TOP.mips_core.MEM_STAGE_GLUE.i_d_cache_pass_through.rw_addr[4:0]
+TOP.mips_core.MEM_STAGE_GLUE.i_d_cache_pass_through.alu_result[31:0]
+@204
+-pr_e2m
+@24
+TOP.mips_core.PR_E2M.i_d_cache_pass_through.rw_addr[4:0]
+TOP.mips_core.PR_E2M.i_d_cache_pass_through.alu_result[31:0]
+@204
+-ex_stage_glue
+@24
+TOP.mips_core.EX_STAGE_GLUE.i_alu_pass_through.rw_addr[4:0]
+TOP.mips_core.EX_STAGE_GLUE.i_alu_output.result[31:0]
+@204
+-ALU
+@24
+TOP.mips_core.ALU.out.result[31:0]
+TOP.mips_core.ALU.in.alu_ctl[4:0]
+TOP.mips_core.ALU.in.op1[31:0]
+TOP.mips_core.ALU.in.op2[31:0]
+@204
+-pr_d2e
+@24
+TOP.mips_core.PR_D2E.i_alu_pass_through.rw_addr[4:0]
+@204
+-decode_stage_glue
+@24
+TOP.mips_core.DEC_STAGE_GLUE.i_decoded.rw_addr[4:0]
+@204
+-reg_file
+@24
+TOP.mips_core.REG_FILE.i_decoded.rw_addr[4:0]
+@204
+-decoder
+@24
+TOP.mips_core.DECODER.i_pc.pc[25:0]
+TOP.mips_core.DECODER.i_inst.data[31:0]
+TOP.mips_core.DECODER.out.rw_addr[4:0]
+@204
+-pr_i2d
+@25
+TOP.mips_core.PR_I2D.i_pc.pc[25:0]
+@24
+TOP.mips_core.PR_I2D.i_inst.data[31:0]
+@204
+-i_cache
+@24
+TOP.mips_core.I_CACHE.i_pc_current.pc[25:0]
+TOP.mips_core.I_CACHE.i_pc_next.pc[25:0]
+TOP.mips_core.I_CACHE.out.data[31:0]
+@204
+-fetch_unit
+@24
+TOP.mips_core.FETCH_UNIT.i_hc.flush
+TOP.mips_core.FETCH_UNIT.i_hc.stall
+TOP.mips_core.FETCH_UNIT.i_load_pc.new_pc[25:0]
+TOP.mips_core.FETCH_UNIT.o_pc_current.pc[25:0]
+TOP.mips_core.FETCH_UNIT.o_pc_next.pc[25:0]
+TOP.mips_core.clk
+[pattern_trace] 1
+[pattern_trace] 0
