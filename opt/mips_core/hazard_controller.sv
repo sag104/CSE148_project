@@ -63,6 +63,9 @@ module hazard_controller (
 	//    lw_hazard;		// Load word hazard (input from forward unit)
 	logic dc_miss;			// D cache miss
 
+	//number of branch hits
+	logic branch_hit;
+
 	// Determine if we have these hazards
 	always_comb
 	begin
@@ -73,6 +76,8 @@ module hazard_controller (
 				| (dec_branch_decoded.prediction == TAKEN));
 		ex_overload = ex_branch_result.valid
 			& (ex_branch_result.prediction != ex_branch_result.outcome);
+		branch_hit = ex_branch_result.valid
+			& (ex_branch_result.prediction == ex_branch_result.outcome);
 		// lw_hazard is determined by forward unit.
 		dc_miss = ~mem_done;
 	end
@@ -190,6 +195,7 @@ module hazard_controller (
 		if (ds_miss) stats_event("ds_miss");
 		if (dec_overload) stats_event("dec_overload");
 		if (ex_overload) stats_event("ex_overload");
+		if (branch_hit) stats_event("branch_hit");
 		if (lw_hazard) stats_event("lw_hazard");
 		if (dc_miss) stats_event("dc_miss");
 		if (if_stall) stats_event("if_stall");

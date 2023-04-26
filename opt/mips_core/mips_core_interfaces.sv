@@ -38,17 +38,23 @@ interface branch_decoded_ifc ();
 	logic [`ADDR_WIDTH - 1 : 0] target;
 
 	mips_core_pkg::BranchOutcome prediction;
+	mips_core_pkg::BranchOutcome prediction_gshare;
+	mips_core_pkg::BranchOutcome prediction_2bit;
+	logic [`G_HISTORY_BITS - 1 : 0] ghistory;
 	logic [`ADDR_WIDTH - 1 : 0] recovery_target;
 
 	modport decode (output valid, is_jump, target,
-		input prediction, recovery_target);
-	modport hazard (output prediction, recovery_target,
+		input prediction, prediction_gshare, prediction_2bit, recovery_target, ghistory);
+	modport hazard (output prediction, prediction_gshare, prediction_2bit, recovery_target, ghistory,
 		input valid, is_jump, target);
 endinterface
 
 interface alu_pass_through_ifc ();
 	logic is_branch;
 	mips_core_pkg::BranchOutcome prediction;
+	mips_core_pkg::BranchOutcome prediction_gshare;
+	mips_core_pkg::BranchOutcome prediction_2bit;
+	logic [`G_HISTORY_BITS - 1 : 0] ghistory;
 	logic [`ADDR_WIDTH - 1 : 0] recovery_target;
 
 	logic is_mem_access;
@@ -58,20 +64,23 @@ interface alu_pass_through_ifc ();
 	logic uses_rw;
 	mips_core_pkg::MipsReg rw_addr;
 
-	modport in  (input is_branch, prediction, recovery_target, is_mem_access,
+	modport in  (input is_branch, prediction, prediction_gshare, prediction_2bit, ghistory, recovery_target, is_mem_access,
 		mem_action, sw_data, uses_rw, rw_addr);
-	modport out (output is_branch, prediction, recovery_target, is_mem_access,
+	modport out (output is_branch, prediction, prediction_gshare, prediction_2bit, ghistory, recovery_target, is_mem_access,
 		mem_action, sw_data, uses_rw, rw_addr);
 endinterface
 
 interface branch_result_ifc ();
 	logic valid;
+	logic [`G_HISTORY_BITS - 1 : 0]ghistory;
 	mips_core_pkg::BranchOutcome prediction;
+	mips_core_pkg::BranchOutcome prediction_gshare;
+	mips_core_pkg::BranchOutcome prediction_2bit;
 	mips_core_pkg::BranchOutcome outcome;
 	logic [`ADDR_WIDTH - 1 : 0] recovery_target;
 
-	modport in  (input valid, prediction, outcome, recovery_target);
-	modport out (output valid, prediction, outcome, recovery_target);
+	modport in  (input valid, prediction, prediction_gshare, prediction_2bit, outcome, recovery_target, ghistory);
+	modport out (output valid, prediction, prediction_gshare, prediction_2bit, outcome, recovery_target, ghistory);
 endinterface
 
 interface d_cache_pass_through_ifc ();

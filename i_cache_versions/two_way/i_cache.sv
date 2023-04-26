@@ -179,7 +179,7 @@ module i_cache #(
 
 		databank_wdata = mem_read_data.RDATA;
 		databank_waddr = {r_index,1'b0} + {5'b0, lru_bits[r_index]};
-		databank_raddr = {i_index_next, 1'b0} + {5'b0, hit1};
+		databank_raddr = (databank_we != '0) ? databank_waddr : {i_index_next, 1'b0} + {5'b0, hit1};
 	end
 
 

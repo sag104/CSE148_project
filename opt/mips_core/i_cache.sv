@@ -26,7 +26,7 @@
 `include "mips_core.svh"
 
 module i_cache #(
-	parameter INDEX_WIDTH = 5, // 1 KB Cahe size 
+	parameter INDEX_WIDTH = 6, // 1 KB Cahe size 
 	parameter BLOCK_OFFSET_WIDTH = 2
 	)(
 	// General signals
@@ -46,10 +46,8 @@ module i_cache #(
 );
 	localparam TAG_WIDTH = `ADDR_WIDTH - INDEX_WIDTH - BLOCK_OFFSET_WIDTH - 2;
 	localparam LINE_SIZE = 1 << BLOCK_OFFSET_WIDTH;
-	localparam DEPTH = 1 << (INDEX_WIDTH+1);
-	localparam TAG_DEPTH = 1 << INDEX_WIDTH;
-	localparam DATA_BANK_ADDRESS_WIDTH = 6;
-	localparam NUM_TAGS = 2;
+	localparam DEPTH = 1 << INDEX_WIDTH;
+
 	// Check if the parameters are set correctly
 	generate
 		if(TAG_WIDTH <= 0 || LINE_SIZE > 16)
@@ -85,8 +83,8 @@ module i_cache #(
 	logic [LINE_SIZE - 1 : 0] databank_select;
 	logic [LINE_SIZE - 1 : 0] databank_we;
 	logic [`DATA_WIDTH - 1 : 0] databank_wdata;
-	logic [DATA_BANK_ADDRESS_WIDTH - 1 : 0] databank_waddr;
-	logic [DATA_BANK_ADDRESS_WIDTH - 1 : 0] databank_raddr;
+	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
+	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
 	logic [`DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
 
 	// databanks
@@ -96,7 +94,7 @@ module i_cache #(
 		begin : databanks
 			cache_bank #(
 				.DATA_WIDTH (`DATA_WIDTH),
-				.ADDR_WIDTH (DATA_BANK_ADDRESS_WIDTH)
+				.ADDR_WIDTH (INDEX_WIDTH)
 			) databank (
 				.clk,
 				.i_we (databank_we[g]),
@@ -110,49 +108,38 @@ module i_cache #(
 	endgenerate
 
 	// tagbank signals
-	logic [NUM_TAGS - 1 : 0] tagbank_we;
+	logic tagbank_we;
 	logic [TAG_WIDTH - 1 : 0] tagbank_wdata;
 	logic [INDEX_WIDTH - 1 : 0] tagbank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] tagbank_raddr;
-	logic [TAG_WIDTH - 1 : 0] tagbank_rdata [NUM_TAGS];
+	logic [TAG_WIDTH - 1 : 0] tagbank_rdata;
 
-	generate 
-		for (g = 0; g < NUM_TAGS; g++)
-		begin: tagbanks
-			cache_bank #(
-				.DATA_WIDTH (TAG_WIDTH),
-				.ADDR_WIDTH (INDEX_WIDTH)
-			) tagbank (
-				.clk,
-				.i_we    (tagbank_we[g]),
-				.i_wdata (tagbank_wdata),
-				.i_waddr (tagbank_waddr),
-				.i_raddr (tagbank_raddr),	
-				.o_rdata (tagbank_rdata[g])
-			);
-		end
-	endgenerate
+	cache_bank #(
+		.DATA_WIDTH (TAG_WIDTH),
+		.ADDR_WIDTH (INDEX_WIDTH)
+	) tagbank (
+		.clk,
+		.i_we    (tagbank_we),
+		.i_wdata (tagbank_wdata),
+		.i_waddr (tagbank_waddr),
+		.i_raddr (tagbank_raddr),
+
+		.o_rdata (tagbank_rdata)
+	);
 
 	// Valid bits
 	logic [DEPTH - 1 : 0] valid_bits;
 
-	//LRU bits
-	logic [TAG_DEPTH - 1 : 0] lru_bits;
-
 	// Intermediate signals
-	logic hit0, hit1, hit, miss;
+	logic hit, miss;
 	logic last_refill_word;
 
 
 	always_comb
 	begin
-		hit0 = (valid_bits[i_index * 2]
-			& (i_tag == tagbank_rdata[0])
-			& (state == STATE_READY));
-		hit1 = (valid_bits[i_index * 2 + 1]
-			& (i_tag == tagbank_rdata[1])
-			& (state == STATE_READY));
-		hit = hit0 || hit1;
+		hit = valid_bits[i_index]
+			& (i_tag == tagbank_rdata)
+			& (state == STATE_READY);
 		miss = ~hit;
 		last_refill_word = databank_select[LINE_SIZE - 1]
 			& mem_read_data.RVALID;
@@ -178,17 +165,13 @@ module i_cache #(
 			databank_we = '0;
 
 		databank_wdata = mem_read_data.RDATA;
-		databank_waddr = {r_index,1'b0} + {5'b0, lru_bits[r_index]};
-		databank_raddr = (databank_we != '0) ? databank_waddr : {i_index_next, 1'b0} + {5'b0, hit1};
+		databank_waddr = r_index;
+		databank_raddr = i_index_next;
 	end
-
 
 	always_comb
 	begin
-		if (last_refill_word)
-			tagbank_we = {lru_bits[r_index], ~lru_bits[r_index]};
-		else
-			tagbank_we = '0;
+		tagbank_we = last_refill_word;
 		tagbank_wdata = r_tag;
 		tagbank_waddr = r_index;
 		tagbank_raddr = i_index_next;
@@ -200,14 +183,9 @@ module i_cache #(
 		out.data = databank_rdata[i_block_offset];
 	end
 
-	always_ff @(posedge clk)
-	begin
-		if(hit) lru_bits[i_index] <= hit0;
-	end
-
 	always_comb
 	begin
-		//next_state = state;
+		next_state = state;
 		unique case (state)
 			STATE_READY:
 				if (miss)
@@ -253,12 +231,8 @@ module i_cache #(
 					begin
 						databank_select <= {databank_select[LINE_SIZE - 2 : 0],
 							databank_select[LINE_SIZE - 1]};
-						valid_bits[databank_waddr] <= last_refill_word;
+						valid_bits[r_index] <= last_refill_word;
 					end
-				end
-
-				default:
-				begin
 				end
 			endcase
 		end

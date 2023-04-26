@@ -25,17 +25,24 @@ module branch_controller (
 	logic request_prediction;
 
 	// Change the following line to switch predictor
-	branch_predictor_always_not_taken PREDICTOR (
+	branch_predictor_gshare PREDICTOR (
 		.clk, .rst_n,
 
 		.i_req_valid     (request_prediction),
 		.i_req_pc        (dec_pc.pc),
 		.i_req_target    (dec_branch_decoded.target),
 		.o_req_prediction(dec_branch_decoded.prediction),
+		//.o_req_prediction_gshare(dec_branch_decoded.prediction_gshare),
+		//.o_req_prediction_2bit(dec_branch_decoded.prediction_2bit),
+		.o_req_ghistory	 (dec_branch_decoded.ghistory),
 
 		.i_fb_valid      (ex_branch_result.valid),
 		.i_fb_pc         (ex_pc.pc),
+
+		.i_fb_ghistory   (ex_branch_result.ghistory),
 		.i_fb_prediction (ex_branch_result.prediction),
+		//.i_fb_prediction_gshare (ex_branch_result.prediction_gshare),
+		//.i_fb_prediction_2bit (ex_branch_result.prediction_2bit),
 		.i_fb_outcome    (ex_branch_result.outcome)
 	);
 
@@ -49,7 +56,7 @@ module branch_controller (
 	end
 
 endmodule
-/*
+
 module branch_predictor_tournament (
 	input clk,    // Clock
 	input rst_n,  // Synchronous reset active low
@@ -59,150 +66,79 @@ module branch_predictor_tournament (
 	input logic [`ADDR_WIDTH - 1 : 0] i_req_pc,
 	input logic [`ADDR_WIDTH - 1 : 0] i_req_target,
 	output mips_core_pkg::BranchOutcome o_req_prediction,
+	output mips_core_pkg::BranchOutcome o_req_prediction_gshare,
+	output mips_core_pkg::BranchOutcome o_req_prediction_2bit,
+	output logic [`G_HISTORY_BITS - 1 : 0]o_req_ghistory,
 
 	// Feedback
 	input logic i_fb_valid,
 	input logic [`ADDR_WIDTH - 1 : 0] i_fb_pc,
-	input mips_core_pkg::BranchOutcome i_fb_prediction,
+	input logic [`G_HISTORY_BITS - 1 : 0]i_fb_ghistory,
+	input mips_core_pkg::BranchOutcome i_fb_prediction_gshare,
+	input mips_core_pkg::BranchOutcome i_fb_prediction_2bit,
 	input mips_core_pkg::BranchOutcome i_fb_outcome
 );
 
-	localparam G_HISTORY_BITS = 12;
-	localparam G_BHT_ENTRIES = 1 << G_HISTORY_BITS;
-	localparam L_HISTORY_BITS = 10;
-	localparam L_BHT_ENTRIES = 1 << L_HISTORY_BITS;
+	mips_core_pkg::BranchOutcome chooser_prediction;
 
-	enum logic [1:0] {SN = 0, WN = 1, WT = 2, ST = 3} predictin;
+	branch_predictor_gshare PREDICTOR_GSHARE (
+		.clk, .rst_n,
 
-	logic [G_BHT_ENTRIES - 1 : 0] bht_gshare [1:0];
-	logic [G_HISTORY_BITS - 1 : 0] ghistory, g_predict_index, g_feedback_index;
-	
-	logic [L_BHT_ENTRIES - 1 : 0] bht_local [1:0];
-	logic [L_BHT_ENTRIES - 1 : 0] lht [L_HISTORY_BITS - 1 : 0];
-	logic [L_HISTORY_BITS - 1 : 0] l_predict_index, l_feedback_index;
-	
-	logic feedback_taken;
+		.i_req_valid     (i_req_valid),
+		.i_req_pc        (i_req_pc),
+		.i_req_target    (i_req_target),
+		.o_req_prediction(o_req_prediction_gshare),
+		.o_req_ghistory	 (o_req_ghistory),
 
-	logic mips_core_pkg::BranchOutcome g_prediction, 
+		.i_fb_valid      (i_fb_valid),
+		.i_fb_pc         (i_fb_pc),
 
-	always_comb
-	begin
-		predict_index = lht[i_req_pc[L_HISTORY_BITS - 1: 0]];
-		feedback_index = lht[i_fb_pc[L_HISTORY_BITS - 1: 0]];
-		feedback_taken = (i_fb_outcome == TAKEN) ? 1 : 0;
-		
-		case(bht_local[predict_index])
-			SN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WT:
-			begin
-				o_req_prediction = TAKEN;
-			end
-			
-			ST:
-			begin
-				o_req_prediction = TAKEN;
-			end
-		endcase
-	end
-
+		.i_fb_ghistory   (i_fb_ghistory),
+		.i_fb_prediction (i_fb_prediction_gshare),
+		.i_fb_outcome    (i_fb_outcome)
 	);
+
+	branch_predictor_2bit PREDICTOR_2BIT (
+		.clk, .rst_n,
+
+		.i_req_valid     (i_req_valid),
+		.i_req_pc        (i_req_pc),
+		.i_req_target    (i_req_target),
+		.o_req_prediction(o_req_prediction_2bit),
+
+		.i_fb_valid      (i_fb_valid),
+		.i_fb_pc         (i_fb_pc),
+
+		.i_fb_prediction (i_fb_prediction_2bit),
+		.i_fb_outcome    (i_fb_outcome)
+	);
+
+	branch_predictor_chooser CHOOSER (
+		.clk, .rst_n,
+
+		.i_req_valid     (i_req_valid),
+		.i_req_pc        (i_req_pc),
+		.i_req_target    (i_req_target),
+		.o_req_prediction(chooser_prediction),
+		
+		.ghistory	 (o_req_ghistory),
+
+		.i_fb_valid      (i_fb_valid),
+		.i_fb_pc         (i_fb_pc),
+
+		.i_fb_ghistory   (i_fb_ghistory),
+		.i_fb_prediction_gshare (i_fb_prediction_gshare),
+		.i_fb_prediction_2bit (i_fb_prediction_2bit),
+		.i_fb_outcome    (i_fb_outcome)
+	);
+
+	always_comb begin
+		o_req_prediction =  (chooser_prediction) ? o_req_prediction_gshare : o_req_prediction_2bit;
+	end
+	
 endmodule
 
 module branch_predictor_chooser (
-	input clk,
-	input rst_n,
-	input logic [`ADDR_WIDTH - 1 : 0] i_req_pc,
-	input logic [`ADDR_WIDTH - 1 : 0] i_fb_pc,
-	input mips_core_pkg::BranchOutcome 
-
-);
-
-	localparam G_HISTORY_BITS = 10;
-	localparam BHT_ENTRIES = 1 << G_HISTORY_BITS;
-	
-	enum logic [1:0] {SN = 0, WN = 1, WT = 1, ST = 1} prediction;
-
-	logic [BHT_ENTRIES - 1 : 0] bht_chooser [1:0];
-	logic [LOCAL_HISTORY_BITS - 1 : 0] predict_index, feedback_index;
-
-	always_comb
-	begin
-		case(bht_chooser[ghistory])
-		begin
-			state SN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			state WN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			state WT:
-			begin
-				o_req_prediction = TAKEN;
-			end
-			
-			state ST:
-			begin
-				o_req_prediction = TAKEN;
-			end
-		end
-	end
-
-	always_ff @(posedge clk)
-	begin
-		if(!rst_n)
-		begin
-			bht_local <= WN;
-			lht <= 0;
-		end
-		else
-		begin
-			if(i_fb_valid)
-				ghistory <= {ghistory[G_HISTORY_BITS - 2 : 0], i_fb_outcome};
-				case(bht_local[feedback_index])
-				begin
-					state SN:
-					begin
-						bht_local[feedback_index] <= (feedback_taken) ? WN : SN;
-					end
-			
-					state WN:
-					begin
-						bht_local[feedback_index] <= (feedback_taken) ? WT : SN;
-					end
-			
-					state WT:
-					begin
-						bht_local[feedback_index] <= (feedback_taken) ? ST :WN;
-					end
-			
-					state ST:
-					begin
-						bht_local[feedback_index] <= (feedback_taken) ? ST : WT;
-					end
-				end
-			end
-		end
-	end
-
-
-endmodule
-
-*/	
-
-module branch_predictor_local (
 	input clk,    // Clock
 	input rst_n,  // Synchronous reset active low
 
@@ -211,91 +147,86 @@ module branch_predictor_local (
 	input logic [`ADDR_WIDTH - 1 : 0] i_req_pc,
 	input logic [`ADDR_WIDTH - 1 : 0] i_req_target,
 	output mips_core_pkg::BranchOutcome o_req_prediction,
+	
+	input logic [`G_HISTORY_BITS - 1 : 0] ghistory,
 
 	// Feedback
 	input logic i_fb_valid,
 	input logic [`ADDR_WIDTH - 1 : 0] i_fb_pc,
-	input mips_core_pkg::BranchOutcome i_fb_prediction,
+	input logic [`G_HISTORY_BITS - 1 : 0]i_fb_ghistory,
+	input mips_core_pkg::BranchOutcome i_fb_prediction_gshare,
+	input mips_core_pkg::BranchOutcome i_fb_prediction_2bit,
 	input mips_core_pkg::BranchOutcome i_fb_outcome
 );
 
-	localparam LOCAL_HISTORY_BITS = 10;
-	localparam BHT_ENTRIES = 1 << LOCAL_HISTORY_BITS;
+	//localparam G_HISTORY_BITS = 12;
+	localparam BHT_ENTRIES = 1 << `G_HISTORY_BITS;
 
-	enum logic [1:0] {SN = 0, WN = 1, WT = 1, ST = 1} prediction;
+	enum logic [1:0] {SN = 0, WN = 1, WT = 2, ST = 3} prediction;
+	logic [1:0] bht_chooser [BHT_ENTRIES - 1 : 0];
+	logic [`G_HISTORY_BITS - 1 : 0] predict_index, feedback_index;
+	logic gshare_correct;
+	mips_core_pkg::BranchOutcome cur_pred;
 
-	logic [BHT_ENTRIES - 1 : 0] bht_local [1:0];
-	logic [BHT_ENTRIES - 1 : 0] lht [LOCAL_HISTORY_BITS - 1 : 0];
-	logic [LOCAL_HISTORY_BITS - 1 : 0] predict_index, feedback_index;
-	logic feedback_taken;
-	
 	always_comb
 	begin
-		predict_index = lht[i_req_pc[LOCAL_HISTORY_BITS - 1: 0]];
-		feedback_index = lht[i_fb_pc[LOCAL_HISTORY_BITS - 1: 0]];
-		feedback_taken = (i_fb_outcome == TAKEN) ? 1 : 0;
-		
-		case(bht_local[predict_index])
-			SN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WT:
-			begin
-				o_req_prediction = TAKEN;
-			end
-			
-			ST:
-			begin
-				o_req_prediction = TAKEN;
-			end
-		endcase
+		predict_index = i_req_pc[`G_HISTORY_BITS - 1 : 0] ^ ghistory;
+		feedback_index = i_fb_pc[`G_HISTORY_BITS - 1 : 0] ^ i_fb_ghistory;
+		gshare_correct = (i_fb_outcome == i_fb_prediction_gshare);
 	end
 
-	always_ff @(posedge clk)
-	begin
-		if(!rst_n)
-		begin
-			bht_local <= WN;
-			lht <= 0;
+	initial begin
+		for (int i = 0; i < BHT_ENTRIES; i++) begin
+			bht_chooser[i] = WN;
 		end
-		else 
-		begin
-			if (i_fb_valid)
-			begin
-				lht[i_fb_pc[LOCAL_HISTORY_BITS - 1: 0]] <= {lht[i_fb_pc[LOCAL_HISTORY_BITS - 1 : 0]][LOCAL_HISTORY_BITS - 2 : 0], i_fb_outcome};
-				case(bht_local[feedback_index])
+	end
+
+	always_ff@(posedge clk) begin
+		if (!rst_n) begin
+		end else begin
+			if(i_fb_valid & (i_fb_prediction_gshare != i_fb_prediction_2bit)) begin
+				case(bht_chooser[feedback_index])
 					SN:
 					begin
-						bht_local[feedback_index] <= (feedback_taken) ? WN : SN;
+						bht_chooser[feedback_index] <= (gshare_correct) ? WN : SN;
 					end
 			
 					WN:
 					begin
-						bht_local[feedback_index] <= (feedback_taken) ? WT : SN;
+						bht_chooser[feedback_index] <= (gshare_correct) ? WT : SN;
 					end
 			
 					WT:
 					begin
-						bht_local[feedback_index] <= (feedback_taken) ? ST :WN;
+						bht_chooser[feedback_index] <= (gshare_correct) ? ST :WN;
 					end
 			
 					ST:
 					begin
-						bht_local[feedback_index] <= (feedback_taken) ? ST : WT;
+						bht_chooser[feedback_index] <= (gshare_correct) ? ST : WT;
 					end
 				endcase
 			end
 		end
 	end
 
-endmodule
+	always_comb
+	begin
+		o_req_prediction = cur_pred;
+		case(bht_chooser[predict_index])
+			SN, WN:
+			begin
+				cur_pred = NOT_TAKEN;
+			end
+			
+			WT, ST:
+			begin
+				cur_pred = TAKEN;
+			end
+		endcase
+	end
+
+endmodule	
 
 module branch_predictor_gshare (
 	input clk,    // Clock
@@ -306,181 +237,104 @@ module branch_predictor_gshare (
 	input logic [`ADDR_WIDTH - 1 : 0] i_req_pc,
 	input logic [`ADDR_WIDTH - 1 : 0] i_req_target,
 	output mips_core_pkg::BranchOutcome o_req_prediction,
+	output logic [`G_HISTORY_BITS - 1 : 0]o_req_ghistory,
 
 	// Feedback
 	input logic i_fb_valid,
 	input logic [`ADDR_WIDTH - 1 : 0] i_fb_pc,
+	input logic [`G_HISTORY_BITS - 1 : 0]i_fb_ghistory,
 	input mips_core_pkg::BranchOutcome i_fb_prediction,
 	input mips_core_pkg::BranchOutcome i_fb_outcome
 );
 
-	localparam G_HISTORY_BITS = 12;
-	localparam BHT_ENTRIES = 1 << G_HISTORY_BITS;
+	//localparam G_HISTORY_BITS = 12;
+	localparam BHT_ENTRIES = 1 << `G_HISTORY_BITS;
 
-	enum logic [1:0] {SN = 0, WN = 1, WT = 1, ST = 1} prediction;
-
-	logic [BHT_ENTRIES - 1 : 0] bht_gshare [1:0];
-	logic [G_HISTORY_BITS - 1 : 0] ghistory, predict_index, feedback_index;
-	logic feedback_taken;
-	
+	enum logic [1:0] {SN = 0, WN = 1, WT = 2, ST = 3} prediction;
+	logic [1:0] bht_gshare [BHT_ENTRIES - 1 : 0];
+	logic [`G_HISTORY_BITS - 1 : 0] ghistory, predict_index, feedback_index;
+	logic ghistory_flush;
+	mips_core_pkg::BranchOutcome cur_pred;
 
 	always_comb
 	begin
-		predict_index = i_req_pc[G_HISTORY_BITS - 1 : 0] ^ ghistory;
-		feedback_index = i_fb_pc[G_HISTORY_BITS - 1 : 0] ^ ghistory;
-		feedback_taken = (i_fb_outcome == TAKEN) ? 1 : 0;
-		
+		predict_index = i_req_pc[`G_HISTORY_BITS - 1 : 0] ^ ghistory;
+		feedback_index = i_fb_pc[`G_HISTORY_BITS - 1 : 0] ^ i_fb_ghistory;
+		ghistory_flush = i_fb_valid & ~(i_fb_prediction == i_fb_outcome);
+	end
+
+	always_ff@(posedge clk)
+	begin
+		if(!rst_n) begin
+			ghistory <= '0;
+		end else  begin
+			if(ghistory_flush) begin
+				ghistory <= {i_fb_ghistory[`G_HISTORY_BITS - 2 : 0], i_fb_outcome};
+			end else if(i_req_valid) begin
+				ghistory <= {ghistory[`G_HISTORY_BITS - 2 : 0], cur_pred};
+			end else begin
+				ghistory <= ghistory;
+			end
+		end
+	end
+
+	initial begin
+		for (int i = 0; i < BHT_ENTRIES; i++) begin
+			bht_gshare[i] = WN;
+		end
+	end
+
+	always_ff@(posedge clk) begin
+		if (!rst_n) begin
+			//foreach(bht_gshare[index]) begin
+			//	bht_gshare[index] <= WN;
+			//end
+			//for (int i = 0; i < (1 << 6); i++) begin
+			//	bht_gshare[i] <= WN;
+			//end
+			//bht_gshare <= '0;
+		end else begin
+			if(i_fb_valid) begin
+				case(bht_gshare[feedback_index])
+					SN:
+					begin
+						bht_gshare[feedback_index] <= (i_fb_outcome) ? WN : SN;
+					end
+			
+					WN:
+					begin
+						bht_gshare[feedback_index] <= (i_fb_outcome) ? WT : SN;
+					end
+			
+					WT:
+					begin
+						bht_gshare[feedback_index] <= (i_fb_outcome) ? ST :WN;
+					end
+			
+					ST:
+					begin
+						bht_gshare[feedback_index] <= (i_fb_outcome) ? ST : WT;
+					end
+				endcase
+			end
+		end
+	end
+
+	always_comb
+	begin
+		o_req_prediction = cur_pred;
+		o_req_ghistory = ghistory;
 		case(bht_gshare[predict_index])
-			SN:
+			SN, WN:
 			begin
-				o_req_prediction = NOT_TAKEN;
+				cur_pred = NOT_TAKEN;
 			end
 			
-			WN:
+			WT, ST:
 			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WT:
-			begin
-				o_req_prediction = TAKEN;
-			end
-			
-			ST:
-			begin
-				o_req_prediction = TAKEN;
+				cur_pred = TAKEN;
 			end
 		endcase
-	end
-
-	always_ff @(posedge clk)
-	begin
-		if(!rst_n)
-		begin
-			bht_gshare <= WN;
-			ghistory <= 0;
-		end
-		else 
-		begin
-			if (i_fb_valid)
-			begin
-				ghistory <= {ghistory[G_HISTORY_BITS - 2 : 0], i_fb_outcome};
-				case(bht_gshare[predict_index])
-					SN:
-					begin
-						bht_gshare[predict_index] <= (feedback_taken) ? WN : SN;
-					end
-			
-					WN:
-					begin
-						bht_gshare[predict_index] <= (feedback_taken) ? WT : SN;
-					end
-			
-					WT:
-					begin
-						bht_gshare[predict_index] <= (feedback_taken) ? ST :WN;
-					end
-			
-					ST:
-					begin
-						bht_gshare[predict_index] <= (feedback_taken) ? ST : WT;
-					end
-				endcase
-			end
-		end
-	end
-
-endmodule
-
-module branch_predictor_global (
-	input clk,    // Clock
-	input rst_n,  // Synchronous reset active low
-
-	// Request	
-	input logic i_req_valid,
-	input logic [`ADDR_WIDTH - 1 : 0] i_req_pc,
-	input logic [`ADDR_WIDTH - 1 : 0] i_req_target,
-	output mips_core_pkg::BranchOutcome o_req_prediction,
-
-	// Feedback
-	input logic i_fb_valid,
-	input logic [`ADDR_WIDTH - 1 : 0] i_fb_pc,
-	input mips_core_pkg::BranchOutcome i_fb_prediction,
-	input mips_core_pkg::BranchOutcome i_fb_outcome
-);
-
-	localparam G_HISTORY_BITS = 12;
-	localparam BHT_ENTRIES = 1 << G_HISTORY_BITS;
-
-	enum logic [1:0] {SN = 0, WN = 1, WT = 1, ST = 1} prediction;
-
-	logic [BHT_ENTRIES - 1 : 0] bht_gshare [1:0];
-	logic [G_HISTORY_BITS - 1 : 0] ghistory;
-	logic feedback_taken;
-	
-
-	always_comb
-	begin
-		feedback_taken = (i_fb_outcome == TAKEN) ? 1 : 0;
-		
-		case(bht_gshare[ghistory])
-			SN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WN:
-			begin
-				o_req_prediction = NOT_TAKEN;
-			end
-			
-			WT:
-			begin
-				o_req_prediction = TAKEN;
-			end
-			
-			ST:
-			begin
-				o_req_prediction = TAKEN;
-			end
-		endcase
-	end
-
-	always_ff @(posedge clk)
-	begin
-		if(!rst_n)
-		begin
-			bht_gshare <= WN;
-			ghistory <= 0;
-		end
-		else 
-		begin
-			if (i_fb_valid)
-			begin
-				ghistory <= {ghistory[G_HISTORY_BITS - 2 : 0], i_fb_outcome};
-				case(bht_gshare[ghistory])
-					SN:
-					begin
-						bht_gshare[ghistory] <= (feedback_taken) ? WN : SN;
-					end
-			
-					WN:
-					begin
-						bht_gshare[ghistory] <= (feedback_taken) ? WT : SN;
-					end
-			
-					WT:
-					begin
-						bht_gshare[ghistory] <= (feedback_taken) ? ST :WN;
-					end
-			
-					ST:
-					begin
-						bht_gshare[ghistory] <= (feedback_taken) ? ST : WT;
-					end
-				endcase
-			end
-		end
 	end
 
 endmodule
