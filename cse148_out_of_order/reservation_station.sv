@@ -1,20 +1,3 @@
-interface rob_to_rename_ifc ();
-	logic [`DATA_WIDTH - 1 : 0] valid;
-	logic [5:0] commit_reg;
-
-	modport in  (input valid, commit_reg);
-	modport out (output valid, commit_reg);
-endinterface
-
-interface rob_to_reg_file_ifc();
-    logic reg_wr_en;
-    logic [31:0] reg_wr_data;
-    logic [5:0] reg_wr_addr;
-
-    modport in  (input reg_wr_en, reg_wr_data, reg_wr_addr);
-    modport out (output reg_wr_en, reg_wr_data, reg_wr_addr);
-endinterface
-
 module reservation_station (
     input logic clk,
     input logic rst_n,

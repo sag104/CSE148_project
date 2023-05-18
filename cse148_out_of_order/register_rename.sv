@@ -46,8 +46,8 @@ always @(posedge clk) begin
             reg_ready[first_free_phy_reg] <= 0;
         end
 
-        if(rob_commit_valid) begin
-            reg_ready[rob_commit_reg] <= 1;
+        if(rob_rename.rob_commit_valid) begin
+            reg_ready[rob_rename.rob_commit_reg] <= 1;
         end
     end
 end

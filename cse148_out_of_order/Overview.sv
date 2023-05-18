@@ -142,18 +142,20 @@ ooo_reg_file REG_FILE (
 );
 
 reservation_station RESERVATION_STATION (
-    .clk,
-    .i_result_tag,
-    .i_operation,
-    .i_cdb_valu	e,
-    .i_cdb_tag,
-    .o_empty_spot,
+    .clk, .rst_n,
+	.decoder_output(dec_decoder_output),
+	.reg_phy_ready(reg_phy_ready),
+	.reg_file_data(reg_file_data)
 );
 
 reorder_buffer REORDER_BUFFER (
-    .clk,
-    .o_empty_spot,
-    .o_result_tag,
+	.clk, .rst_n,
+	.decoder_output(dec_decoder_output),
+	.cdb_output(),
+	.mem_addr_unit_output(),
+	.rob_rename(rob_rename),
+	
+
 );
 
 memory_address_unit ADDRESS_UNIT (
