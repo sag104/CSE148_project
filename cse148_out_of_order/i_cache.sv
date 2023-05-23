@@ -83,9 +83,14 @@ module i_cache #(
 	logic [LINE_SIZE - 1 : 0] databank_select;
 	logic [LINE_SIZE - 1 : 0] databank_we;
 	logic [`DATA_WIDTH - 1 : 0] databank_wdata;
+	logic [`D]
 	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
 	logic [`DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
+
+	logic [127:0] databank_line;
+
+	assign databank_line = {databank[0].databank_rd_addr, databank[1], databank[2], databank[3]}
 
 	// databanks
 	genvar g;
@@ -99,6 +104,25 @@ module i_cache #(
 				.clk,
 				.i_we (databank_we[g]),
 				.i_wdata(databank_wdata),
+				.i_waddr(databank_waddr),
+				.i_raddr(databank_raddr),
+
+				.o_rdata(databank_rdata[g])
+			);
+		end
+	endgenerate
+
+	genvar g;
+	generate
+		for (g = 0; g < LINE_SIZE; g++)
+		begin : databanks
+			cache_bank #(
+				.DATA_WIDTH (`DATA_WIDTH),
+				.ADDR_WIDTH (INDEX_WIDTH)
+			) databank (
+				.clk,
+				.i_we (databank_we[g]),
+				.i_wdata(databank_wdata[g]),
 				.i_waddr(databank_waddr),
 				.i_raddr(databank_raddr),
 
@@ -160,19 +184,24 @@ module i_cache #(
 	always_comb
 	begin
 		if (mem_read_data.RVALID)
-			databank_we = databank_select;
+			databank_we = (victim_cache_wr_en) ? '1 : databank_select;
 		else
 			databank_we = '0;
 
-		databank_wdata = mem_read_data.RDATA;
+		victim_cache_wr_en = victim_hit;
+
+		databank_wdata[0] = (victim_cache_wr_en) ? victim_cache_data[31:0] : mem_read_data.RDATA;
+		databank_wdata[1] = (victim_cache_wr_en) ? victim_cache_data[63:32] : mem_read_data.RDATA;
+		databank_wdata[2] = (victim_cache_wr_en) ? victim_cache_data[95:64] : mem_read_data.RDATA;
+		databank_wdata[3] = (victim_cache_wr_en) ? victim_cache_data[127:96] : mem_read_data.RDATA;
 		databank_waddr = r_index;
 		databank_raddr = i_index_next;
 	end
 
 	always_comb
 	begin
-		tagbank_we = last_refill_word;
-		tagbank_wdata = r_tag;
+		tagbank_we = last_refill_word | victim_cache_wr_en;
+		tagbank_wdata = r_tag | victim_cache_wr_tag;
 		tagbank_waddr = r_index;
 		tagbank_raddr = i_index_next;
 	end

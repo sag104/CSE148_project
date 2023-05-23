@@ -1,12 +1,12 @@
-interface rob_to_rename_ifc ();
+/*interface rob_to_rename_ifc ();
 	logic [`DATA_WIDTH - 1 : 0] valid;
 	logic [5:0] commit_reg;
 
 	modport in  (input valid, commit_reg);
 	modport out (output valid, commit_reg);
-endinterface
+endinterface*/
 
-interface rob_to_reg_file_ifc();
+interface rob_to_reg_wr_ifc();
     logic reg_wr_en;
     logic [31:0] reg_wr_data;
     logic [5:0] reg_wr_addr;
@@ -23,19 +23,19 @@ interface rob_to_mem_unit_ifc();
     modport out (output mem_wr_en, mem_wr_addr);
 endinterface
 
-interface rob_to_res_stat_ifc();
-    logic o_result_tag;
-
-    modport in  (input o_result_tag);
-    modport out (output o_result_tag);
-endinterface
-
 interface rob_write_status_ifc();
     logic empty_spot;
-    logic [3:0] tag;
+    logic [`ROB_DEPTH / 2 - 1 : 0] tag;
 
     modport in  (input empty_spot, tag);
     modport out (output empty_spot, tag);
+endinterface
+
+interface rob_output_ifc();
+    logic [31:0] value;
+
+    modport in  (input value);
+    modport out (output value);
 endinterface
 
 module reorder_buffer (
@@ -46,11 +46,9 @@ module reorder_buffer (
     mem_addr_unit_to_rob_ifc.in mem_addr_unit_output,
 
     rob_write_status_ifc.out rob_wr_status,
-    rob_to_reg_file_ifc.out rob_reg_wr,
+    rob_to_reg_wr_ifc.out rob_reg_wr,
     rob_to_mem_unit_ifc.out rob_mem_wr,
-    rob_to_rename_ifc.out rob_rename
-
-    output logic [31:0] rob_value,
+    rob_output_ifc.out rob_output
 );
 
 //BR is for branch instructions
@@ -73,7 +71,7 @@ logic [15:0] cnt;
 logic [1:0] input_inst_type;
 entry [0:`ROB_DEPTH - 1] fifo;
 
-assign rob_wr_status.empty_spot = (cnt < 4);
+assign rob_wr_status.empty_spot = (cnt < `ROB_DEPTH);
 assign rob_wr_status.tag = wr_ptr;
 
 assign input_inst_type = (dec_decoder_output.is_branch_jump) ? BR :
@@ -84,16 +82,16 @@ assign rob_mem_wr.mem_wr_en = (fifo[rd_ptr].ready & fifo[rd_ptr].inst_type == ST
 assign rob_mem_wr.mem_wr_addr = fifo[rd_ptr].mem_dest;
 
 assign rob_reg_wr.reg_wr_en = (fifo[rd_ptr].ready & fifo[rd_ptr].inst_type == REG);
-assign rob_mem_wr.rw_addr = fifo[rd_ptr].reg_dest;
+assign rob_reg_wr.rw_addr = fifo[rd_ptr].reg_dest;
 
-assign rob_value = fifo[rd_ptr].value;
+assign rob_output.value = fifo[rd_ptr].value;
 
 always_ff @(posedge clk) begin
     if(!rst_n) begin
         wr_pt <= 0;
         fifo <= '{default:0};
         cnt <= 0;
-    end else if (dec_decoder_output.valid && (cnt < 4)) begin
+    end else if (dec_decoder_output.valid && (cnt < `ROB_DEPTH)) begin
         fifo[wr_ptr].inst_type <= input_inst_type;
         fifo[wr_ptr].reg_dest <= rob_rename.rw_phy;
         fifo[wr_ptr].mem_dest <= mem_addr_unit_output.mem_addr;
@@ -115,6 +113,7 @@ always_ff @(posedge clk) begin
         rd_ptr <= 0;
     end else if (fifo[rd_ptr].ready) begin
         rd_ptr <= rd_ptr + 1;
+        cnt <= cnt - 1;
     end
 end
 

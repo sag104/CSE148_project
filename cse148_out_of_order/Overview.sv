@@ -54,11 +54,24 @@ cache_output_ifc i2d_inst();
 // |||| DEC Stage
 decoder_output_ifc dec_decoder_output();
 
-// reorder buffer to register rename
-rob_to_rename_ifc rob_rename();
-rob_to_reg_file_ifc rob_reg_file();
+// Register renaming
 register_rename_ifc reg_phy_ready();
+
+// Reg File
 reg_file_output_ifc reg_file_output();
+
+// Common Data Bus
+common_data_bus_ifc cdb_output();
+cdb_alu_status_ifc reserv_stat_stall();
+
+// Memory Address Unit
+mem_addr_unit_to_rob_ifc mem_addr_unit_output();
+
+// Reorder Buffer
+rob_write_status_ifc rob_wr_status();
+rob_to_reg_wr_ifc rob_reg_wr();
+rob_to_mem_unit_ifc rob_mem_wr();
+rob_output_ifc rob_output();
 
 // xxxx Hazard control
 logic lw_hazard;
@@ -129,7 +142,8 @@ decoder DECODER(
 register_rename REGISTER_RENAME (
 	.clk, .rst_n,
 	.decoder_output(dec_decoder_output),
-	.rob_rename(rob_rename),
+	.rob_reg_wr(rob_reg_wr),
+	.rob_wr_status(rob_wr_status),
 	.reg_phy_ready(reg_phy_ready)
 );
 
@@ -145,17 +159,25 @@ reservation_station RESERVATION_STATION (
     .clk, .rst_n,
 	.decoder_output(dec_decoder_output),
 	.reg_phy_ready(reg_phy_ready),
-	.reg_file_data(reg_file_data)
+	.reg_file_data(reg_file_data),
+	.alu_stall(alu_stall)
+);
+
+alu ALU(
+		.in(d2e_alu_input),
+		.out(ex_alu_output),
+		.done
 );
 
 reorder_buffer REORDER_BUFFER (
 	.clk, .rst_n,
 	.decoder_output(dec_decoder_output),
-	.cdb_output(),
-	.mem_addr_unit_output(),
-	.rob_rename(rob_rename),
-	
-
+	.cdb_output(cdb_output),
+	.mem_addr_unit_output(mem_addr_unit_output),
+	.rob_wr_status(rob_wr_status),
+	.rob_reg_wr(rob_reg_wr),
+	.rob_mem_wr(rob_mem_wr),
+	.rob_output(rob_output)
 );
 
 memory_address_unit ADDRESS_UNIT (
@@ -163,7 +185,7 @@ memory_address_unit ADDRESS_UNIT (
 	.rst,
 	.dec_decoder_output
 );
-
+a
 load_buffer LOAD_BUFFER (
 
 );
@@ -180,8 +202,9 @@ d_cache D_CACHE (
 );
 
 common_data_bus CDB (
-    //idea for cdb is to have it be [63:0] for value coming from mem_unit
-    //and integer unit and a valid bit to see if there is already data there
+    .clk, .rst_n,
+	.reserv_stat_stall(),
+	.cdb_output()
 );
 
 endmodule
