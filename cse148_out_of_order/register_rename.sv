@@ -87,6 +87,7 @@ always @(posedge clk) begin
                 reg_ready[rob_rename.rob_commit_reg] <= 1;
                 free_reg[active_reg[active_rd_ptr]] <= 1;
                 active_rd_ptr <= active_rd_ptr + 1;
+                
             end
         end
     end
