@@ -1,212 +1,175 @@
-/*
- * hazard_controller.sv
- * Author: Zinsser Zhang
- * Last Revision: 03/13/2022
- *
- * hazard_controller collects feedbacks from each stage and detect whether there
- * are hazards in the pipeline. If so, it generate control signals to stall or
- * flush each stage. It also contains a branch_controller, which talks to
- * a branch predictor to make a prediction when a branch instruction is decoded.
- *
- * It also contains simulation only logic to report hazard conditions to C++
- * code for execution statistics collection.
- *
- * See wiki page "Hazards" for details.
- * See wiki page "Branch and Jump" for details of branch and jump instructions.
- */
-`include "mips_core.svh"
-
-`ifdef SIMULATION
-import "DPI-C" function void stats_event (input string e);
-`endif
-
 module hazard_controller (
-	input clk,    // Clock
-	input rst_n,  // Synchronous reset active low
+    input clk,
+    input rst_n,
 
-	// Feedback from IF
-	cache_output_ifc.in if_i_cache_output,
-	// Feedback from DEC
-	pc_ifc.in dec_pc,
-	branch_decoded_ifc.hazard dec_branch_decoded,
-	// Feedback from EX
-	pc_ifc.in ex_pc,
-	input lw_hazard,
-	branch_result_ifc.in ex_branch_result,
-	// Feedback from MEM
-	input mem_done,
-
-	// Hazard control output
-	hazard_control_ifc.out i2i_hc,
-	hazard_control_ifc.out i2d_hc,
-	hazard_control_ifc.out d2e_hc,
-	hazard_control_ifc.out e2m_hc,
-	hazard_control_ifc.out m2w_hc,
-
-	// Load pc output
-	load_pc_ifc.out load_pc
+    i_cache_output_ifc.in i_cache_output,
+    inst_q_output_ifc.in inst_q_output,
+    decoder_output_ifc.in decoder_output,
+    write_to_rob_ifc.in rob_empty_spot,
+    alu_res_stat_status.in alu_res_stat_status,
+    mem_res_stat_status.in mem_res_stat_status,
+    d_cache_input_ifc.in d_cache_input,
+    d_cache_output_ifc.in d_cache_output,
+    rob_branch_commit.in rob_branch_commit,
+    rob_jump_reg_commit.in rob_jump_reg_commit,
+    
+    hazard_controller_ifc.in i_hc,
+    hazard_controller_ifc.in d_hc,
+    hazard_controller_ifc.in rob_st_hc,
+    hazard_controller_ifc.in e_hc,
+    hazard_controller_ifc.in m_hc,
+    branch_pred_hc_ifc.in branch_pred_hc,
+    load_pc_ifc.in i_load_pc
 );
 
-	branch_controller BRANCH_CONTROLLER (
+    enum logic {NO_JR = 0, WAIT_FOR_TARGET = 1} JR_STATE_LOGIC;
+
+    branch_controller BRANCH_CONTROLLER (
 		.clk, .rst_n,
-		.dec_pc,
-		.dec_branch_decoded,
-		.ex_pc,
-		.ex_branch_result
+
+        .req_valid(req_valid),
+		.decoder_output(decoder_output),
+        .rob_branch_commit(rob_branch_commit),
+        .branch_fb(branch_pred_info[bp_rd_ptr]),
+
+        .branch_pred_output(branch_pred_output)
 	);
 
-	// We have total 6 potential hazards
-	logic ic_miss;			// I cache miss
-	logic ds_miss;			// Delay slot miss
+    struct branch_pred_info {
+        logic pc;
+        logic ghistory;
+        logic prediction;
+        logic prediction_gshare;
+        logic prediction_2bit;
+    };
+
+    branch_pred_info bp_buffer [`ROB_DEPTH];
+    logic [`ROB_DEPTH_BITS - 1 : 0] bp_wr_ptr, bp_rd_ptr;
+
+    logic ic_miss;
 	logic dec_overload;		// Branch predict taken or Jump
+    logic jump_reg_target_overload;
 	logic ex_overload;		// Branch prediction wrong
-	//    lw_hazard;		// Load word hazard (input from forward unit)
 	logic dc_miss;			// D cache miss
+    logic inst_q_full;
+    logic rob_full;
+    logic alu_res_full;
+    logic mem_res_full;
+    logic ld_ready_st_stall;
 
-	//number of branch hits
-	logic branch_hit;
+    logic jr_stall;
+    logic jr_state;
 
-	// Determine if we have these hazards
-	always_comb
-	begin
-		ic_miss = ~if_i_cache_output.valid;
-		ds_miss = ic_miss & dec_branch_decoded.valid;
-		dec_overload = dec_branch_decoded.valid
-			& (dec_branch_decoded.is_jump
-				| (dec_branch_decoded.prediction == TAKEN));
-		ex_overload = ex_branch_result.valid
-			& (ex_branch_result.prediction != ex_branch_result.outcome);
-		branch_hit = ex_branch_result.valid
-			& (ex_branch_result.prediction == ex_branch_result.outcome);
-		// lw_hazard is determined by forward unit.
-		dc_miss = ~mem_done;
-	end
-
-	// Control signals
+    // Control signals
 	logic if_stall, if_flush;
 	logic dec_stall, dec_flush;
+    logic mispredict_flush;
 	logic ex_stall, ex_flush;
 	logic mem_stall, mem_flush;
-	// wb doesn't need to be stalled or flushed
-	// i.e. any data goes to wb is finalized and waiting to be commited
 
-	/*
-	 * Now let's go over the solution of all hazards
-	 * ic_miss:
-	 *     if_stall, if_flush
-	 * ds_miss:
-	 *     dec_stall, dec_flush (if_stall and if_flush handled by ic_miss)
-	 * dec_overload:
-	 *     load_pc
-	 * ex_overload:
-	 *     load_pc, ~if_stall, if_flush
-	 * lw_hazard:
-	 *     dec_stall, dec_flush
-	 * dc_miss:
-	 *     mem_stall, mem_flush
-	 *
-	 * The only conflict here is between ic_miss and ex_overload.
-	 * ex_overload should have higher priority than ic_miss. Because i cache
-	 * does not register missed request, it's totally fine to directly overload
-	 * the pc value.
-	 *
-	 * In addition to above hazards, each stage should also stall if its
-	 * downstream stage stalls (e.g., when mem stalls, if & dec & ex should all
-	 * stall). This has the highest priority.
-	 */
+    // Determine if we have these hazards
+	always_comb begin
+		ic_miss = ~if_i_cache_output.valid;
+		dec_overload = decoder_output.valid
+			& ( (decoder_output.is_jump & !decoder_output.is_jump_reg)
+				| (decoder_output.is_branch & branch_pred_output.prediction == TAKEN));
+        jr_overload = rob_jump_reg_commit.valid_jump_reg;
+        ex_overload = rob_branch_commit.valid_branch
+            & (branch_pred_hist.prediction != rob_branch_commit.branch_outcome);
+		branch_hit = rob_branch_commit.valid_branch
+            & (branch_pred_hist.prediction == rob_branch_commit.branch_outcome);
+		// lw_hazard is determined by forward unit.
+		dc_miss = d_cache_input.valid & !d_cache_output.valid;
 
-	always_comb
-	begin : handle_if
-		if_stall = 1'b0;
-		if_flush = 1'b0;
+        i_hc.stall = ic_miss | inst_q_output.full;
+        d_hc.stall = rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full | jr_stall;
+        d_hc.flush = dec_overload | jr_overload | ex_overload;
+        branch_pred_hc.flush = ex_overload;
+        rob_st_hc.stall = mem_res_stat_status.ld_ready;
+        e_hc.stall = d_cache_input.valid & d_cache_output.valid & (d_cache_input.mem_action == READ);
+        m_hc.stall = dc_miss;
 
-		if (ic_miss)
-		begin
-			if_stall = 1'b1;
-			if_flush = 1'b1;
-		end
-
-		if (ex_overload)
-		begin
-			if_stall = 1'b0;
-			if_flush = 1'b1;
-		end
-
-		if (dec_stall)
-			if_stall = 1'b1;
+        load_pc.we = dec_overload | ex_overload | jr_overload;
+		if (dec_overload) begin 
+			load_pc.new_pc = decoder_output.branch_target;
+        end else if(ex_overload) begin
+			load_pc.new_pc = branch_pred_hist.recovery_target;
+        end else if(jr_overload) begin
+            load_pc.new_pc = rob_jump_reg_commit.jump_target;
+        end else begin
+            load_pc.new_pc = 0;
+        end
 	end
 
-	always_comb
-	begin : handle_dec
-		dec_stall = 1'b0;
-		dec_flush = 1'b0;
+    always_ff @(posedge clk) begin
+        if(!rst_n) begin
+            bp_buffer <= '{default:0};
+            bp_wr_ptr <= 0;
+            bp_rd_ptr <= 0;
+        end else begin
+            if(!d_hc.stall & decoder_output.is_branch) begin
+                bp_wr_ptr <= bp_wr_ptr + 1;
+                bp_buffer[bp_wr_ptr].pc <= decoder_output.pc;
+                bp_buffer[bp_wr_ptr].ghistory <= branch_pred_output.ghistory;
+                bp_buffer[bp_wr_ptr].prediction <= branch_pred_output.prediction;
+                bp_buffer[bp_wr_ptr].prediction_gshare <= branch_pred_output.prediction_gshare;
+                bp_buffer[bp_wr_ptr].prediction_2bit <= branch_pred_output.prediction_2bit;
+            end
 
-		if (ds_miss | lw_hazard)
-		begin
-			dec_stall = 1'b1;
-			dec_flush = 1'b1;
-		end
+            if(rob_branch_commit.valid_branch) begin
+                bp_rd_ptr <= bp_rd_ptr + 1;
+            end
+        end
+    end
 
-		if (ex_stall)
-			dec_stall = 1'b1;
-	end
+    always_ff @(posedge clk) begin
+        if(!rst_n) begin
+            jr_stall <= 0;
+        end else begin
+            case (jr_state)
+                NO_JR: begin
+                    if(decoder_output.is_jump_reg) begin
+                        jr_stall <= decoder_output.is_jump_reg;
+                        jr_state <= WAIT_FOR_TARGET;
+                    end else begin
+                        jr_stall <= jr_stall;
+                        jr_state <= jr_state;
+                    end
+                end
 
-	always_comb
-	begin : handle_ex
-		ex_stall = mem_stall;
-		ex_flush = 1'b0;
-	end
+                WAIT_FOR_TARGET: begin
+                    if(rob_jump_reg_commit.valid_jump_reg) begin
+                        jr_stall <= 0;
+                        jr_state <= NO_JR;
+                    end else begin
+                        jr_stall <= jr_stall;
+                        jr_state <= jr_state;
+                    end
+                end
+            endcase
+        end
+    end
 
-	always_comb
-	begin : handle_mem
-		mem_stall = dc_miss;
-		mem_flush = dc_miss;
-	end
-
-	// Now distribute the control signals to each pipeline registers
-	always_comb
-	begin
-		i2i_hc.stall = 1'b0;
-		i2i_hc.stall = if_stall;
-		i2d_hc.flush = if_flush;
-		i2d_hc.stall = dec_stall;
-		d2e_hc.flush = dec_flush;
-		d2e_hc.stall = ex_stall;
-		e2m_hc.flush = ex_flush;
-		e2m_hc.stall = mem_stall;
-		m2w_hc.flush = mem_flush;
-		m2w_hc.stall = 1'b0;
-	end
-
-	// Derive the load_pc
-	always_comb
-	begin
-		load_pc.we = dec_overload | ex_overload;
-		if (dec_overload)
-			load_pc.new_pc = dec_branch_decoded.target;
-		else
-			load_pc.new_pc = ex_branch_result.recovery_target;
-	end
-
-`ifdef SIMULATION
-	always_ff @(posedge clk)
-	begin
-		if (ic_miss) stats_event("ic_miss");
-		if (ds_miss) stats_event("ds_miss");
-		if (dec_overload) stats_event("dec_overload");
-		if (ex_overload) stats_event("ex_overload");
-		if (branch_hit) stats_event("branch_hit");
-		if (lw_hazard) stats_event("lw_hazard");
-		if (dc_miss) stats_event("dc_miss");
-		if (if_stall) stats_event("if_stall");
-		if (if_flush) stats_event("if_flush");
-		if (dec_stall) stats_event("dec_stall");
-		if (dec_flush) stats_event("dec_flush");
-		if (ex_stall) stats_event("ex_stall");
-		if (ex_flush) stats_event("ex_flush");
-		if (mem_stall) stats_event("mem_stall");
-		if (mem_flush) stats_event("mem_flush");
-	end
-`endif
+    /*
+    `ifdef SIMULATION
+        always_ff @(posedge clk)
+        begin
+            if (ic_miss) stats_event("ic_miss");
+            if (ds_miss) stats_event("ds_miss");
+            if (dec_overload) stats_event("dec_overload");
+            if (ex_overload) stats_event("ex_overload");
+            if (branch_hit) stats_event("branch_hit");
+            if (lw_hazard) stats_event("lw_hazard");
+            if (dc_miss) stats_event("dc_miss");
+            if (if_stall) stats_event("if_stall");
+            if (if_flush) stats_event("if_flush");
+            if (dec_stall) stats_event("dec_stall");
+            if (dec_flush) stats_event("dec_flush");
+            if (ex_stall) stats_event("ex_stall");
+            if (ex_flush) stats_event("ex_flush");
+            if (mem_stall) stats_event("mem_stall");
+            if (mem_flush) stats_event("mem_flush");
+        end
+    `endif*/
 
 endmodule

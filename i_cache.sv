@@ -1,28 +1,3 @@
-/*
- * i_cache.sv
- * Author: Zinsser Zhang 
- * Revision : Sankara 			
- * Last Revision: 04/04/2023
- *
- * This is a direct-mapped instruction cache. Line size and depth (number of
- * lines) are set via INDEX_WIDTH and BLOCK_OFFSET_WIDTH parameters. Notice that
- * line size means number of words (each consist of 32 bit) in a line. Because
- * all addresses in mips_core are 26 byte addresses, so the sum of TAG_WIDTH,
- * INDEX_WIDTH and BLOCK_OFFSET_WIDTH is `ADDR_WIDTH - 2.
- *
- * Typical line sizes are from 2 words to 8 words. The memory interfaces only
- * support up to 8 words line size.
- *
- * Because we need a hit latency of 1 cycle, we need an asynchronous read port,
- * i.e. data is ready during the same cycle when address is calculated. However,
- * SRAMs only support synchronous read, i.e. data is ready the cycle after the
- * address is calculated. Due to this conflict, we need to read from the banks
- * on the clock edge at the beginning of the cycle. As a result, we need both
- * the registered version of address and a non-registered version of address
- * (which will effectively be registered in SRAM).
- *
- * See wiki page "Synchronous Caches" for details.
- */
 `include "mips_core.svh"
 
 module i_cache #(
@@ -38,7 +13,7 @@ module i_cache #(
 	pc_ifc.in i_pc_next,
 
 	// Response
-	cache_output_ifc.out out,
+	i_cache_output_ifc.out out,
 
 	// Memory interface
 	axi_read_address.master mem_read_address,
@@ -83,9 +58,14 @@ module i_cache #(
 	logic [LINE_SIZE - 1 : 0] databank_select;
 	logic [LINE_SIZE - 1 : 0] databank_we;
 	logic [`DATA_WIDTH - 1 : 0] databank_wdata;
+	logic [`D]
 	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
 	logic [`DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
+
+	logic [127:0] databank_line;
+
+	assign databank_line = {databank[0].databank_rd_addr, databank[1], databank[2], databank[3]}
 
 	// databanks
 	genvar g;
@@ -99,6 +79,25 @@ module i_cache #(
 				.clk,
 				.i_we (databank_we[g]),
 				.i_wdata(databank_wdata),
+				.i_waddr(databank_waddr),
+				.i_raddr(databank_raddr),
+
+				.o_rdata(databank_rdata[g])
+			);
+		end
+	endgenerate
+
+	genvar g;
+	generate
+		for (g = 0; g < LINE_SIZE; g++)
+		begin : databanks
+			cache_bank #(
+				.DATA_WIDTH (`DATA_WIDTH),
+				.ADDR_WIDTH (INDEX_WIDTH)
+			) databank (
+				.clk,
+				.i_we (databank_we[g]),
+				.i_wdata(databank_wdata[g]),
 				.i_waddr(databank_waddr),
 				.i_raddr(databank_raddr),
 
@@ -160,19 +159,24 @@ module i_cache #(
 	always_comb
 	begin
 		if (mem_read_data.RVALID)
-			databank_we = databank_select;
+			databank_we = (victim_cache_wr_en) ? '1 : databank_select;
 		else
 			databank_we = '0;
 
-		databank_wdata = mem_read_data.RDATA;
+		victim_cache_wr_en = victim_hit;
+
+		databank_wdata[0] = (victim_cache_wr_en) ? victim_cache_data[31:0] : mem_read_data.RDATA;
+		databank_wdata[1] = (victim_cache_wr_en) ? victim_cache_data[63:32] : mem_read_data.RDATA;
+		databank_wdata[2] = (victim_cache_wr_en) ? victim_cache_data[95:64] : mem_read_data.RDATA;
+		databank_wdata[3] = (victim_cache_wr_en) ? victim_cache_data[127:96] : mem_read_data.RDATA;
 		databank_waddr = r_index;
 		databank_raddr = i_index_next;
 	end
 
 	always_comb
 	begin
-		tagbank_we = last_refill_word;
-		tagbank_wdata = r_tag;
+		tagbank_we = last_refill_word | victim_cache_wr_en;
+		tagbank_wdata = r_tag | victim_cache_wr_tag;
 		tagbank_waddr = r_index;
 		tagbank_raddr = i_index_next;
 	end
@@ -181,6 +185,7 @@ module i_cache #(
 	begin
 		out.valid = hit;
 		out.data = databank_rdata[i_block_offset];
+        out.pc = i_pc_current.pc;
 	end
 
 	always_comb

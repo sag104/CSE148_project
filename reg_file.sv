@@ -13,37 +13,26 @@
  */
 `include "mips_core.svh"
 
-interface reg_file_output_ifc ();
-	logic [`DATA_WIDTH - 1 : 0] rs_data;
-	logic [`DATA_WIDTH - 1 : 0] rt_data;
-
-	modport in  (input rs_data, rt_data);
-	modport out (output rs_data, rt_data);
-endinterface
-
 module reg_file (
-	input clk,    // Clock
-
-	// Input from decoder
-	decoder_output_ifc.in i_decoded,
-
-	// Input from write back stage
-	write_back_ifc.in i_wb,
-
-	// Output data
-	reg_file_output_ifc.out out
+	input logic clk,
+    input logic rst_n,
+    register_rename_ifc.in phy_reg_output,
+    rob_reg_wr_ifc.in rob_reg_wr,
+    decoder_output_ifc.in decoder_output, // Input from decoder
+    reg_file_output_ifc.out reg_file_data
 );
 
-	logic [`DATA_WIDTH - 1 : 0] regs [32];
+logic [`DATA_WIDTH - 1 : 0] regs [64];
 
-	assign out.rs_data = i_decoded.uses_rs ? regs[i_decoded.rs_addr] : '0;
-	assign out.rt_data = i_decoded.uses_rt ? regs[i_decoded.rt_addr] : '0;
+assign reg_file_data.rs_data = decoder_output.uses_rs ? regs[phy_reg_output.rs_phy] : '0;
+assign reg_file_data.rt_data = decoder_output.uses_rt ? regs[phy_reg_output.rt_phy] : '0;
 
-	always_ff @(posedge clk) begin
-		if(i_wb.uses_rw)
-		begin
-			regs[i_wb.rw_addr] = i_wb.rw_data;
-		end
-	end
+always_ff @(posedge clk) begin
+    if(!rst_n) begin
+        regs <= '0;
+    end else if(rob_reg_wr.reg_wr_en) begin
+        regs[rob_reg_wr.reg_wr_addr] <= rob_reg_wr.reg_wr_data;
+    end
+end
 
 endmodule

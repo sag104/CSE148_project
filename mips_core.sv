@@ -1,260 +1,174 @@
-/* mips_core.sv
-* Author: Pravin P. Prabhu, Dean Tullsen, and Zinsser Zhang
-* Last Revision: 03/13/2022
-* Abstract:
-*   The core module for the MIPS32 processor. This is a classic 5-stage
-* MIPS pipeline architecture which is intended to follow heavily from the model
-* presented in Hennessy and Patterson's Computer Organization and Design.
-* All addresses used in this scope are byte addresses (26-bit)
-*/
-`include "mips_core.svh"
-
-`ifdef SIMULATION
-import "DPI-C" function void pc_event (input int pc);
-import "DPI-C" function void wb_event (input int addr, input int data);
-import "DPI-C" function void ls_event (input int op, input int addr, input int data);
-`endif
-
-module mips_core (
-	// General signals
-	input clk,    // Clock
-	input rst_n,  // Synchronous reset active low
-	output done,  // Execution is done
-
-	// AXI interfaces
-	input AWREADY,
-	output AWVALID,
-	output [3:0] AWID,
-	output [3:0] AWLEN,
-	output [`ADDR_WIDTH - 1 : 0] AWADDR,
-
-	input WREADY,
-	output WVALID,
-	output WLAST,
-	output [3:0] WID,
-	output [`DATA_WIDTH - 1 : 0] WDATA,
-
-	output BREADY,
-	input BVALID,
-	input [3:0] BID,
-
-	input ARREADY,
-	output ARVALID,
-	output [3:0] ARID,
-	output [3:0] ARLEN,
-	output [`ADDR_WIDTH - 1 : 0] ARADDR,
-
-	output RREADY,
-	input RVALID,
-	input RLAST,
-	input [3:0] RID,
-	input [`DATA_WIDTH - 1 : 0] RDATA
+module mips_core(
+    input clk,
+    input rst_n
 );
 
-	// Interfaces
-	// |||| IF Stage
-	pc_ifc if_pc_current();
-	pc_ifc if_pc_next();
-	cache_output_ifc if_i_cache_output();
+    //Interfaces sorted by where they output from
 
-	// ==== IF to DEC
-	pc_ifc i2d_pc();
-	cache_output_ifc i2d_inst();
+    //hazard control interfaces
+    hazard_control_ifc i_hc();
+    hazard_control_ifc d_hc();
+    hazard_control_ifc rob_st_hc();
+    hazard_control_ifc e_hc();
+    hazard_control_ifc m_hc();
+    branch_pred_hc_ifc branch_pred_hc();
 
-	// |||| DEC Stage
-	decoder_output_ifc dec_decoder_output();
-	reg_file_output_ifc dec_reg_file_output();
-	reg_file_output_ifc dec_forward_unit_output();
-	branch_decoded_ifc dec_branch_decoded();
-	alu_input_ifc dec_alu_input();
-	alu_pass_through_ifc dec_alu_pass_through();
+    //fetch unit interfaces
+    load_pc_ifc i_load_pc();
+    pc_ifc pc_current();
+    pc_ifc pc_next();
+    i_cache_output_ifc i_cache_output();
+    inst_q_output_ifc inst_q_output();
 
-	// ==== DEC to EX
-	pc_ifc d2e_pc();
-	alu_input_ifc d2e_alu_input();
-	alu_pass_through_ifc d2e_alu_pass_through();
+    //decoder interfaces
+    decoder_output_ifc decoder_output();
 
-	// |||| EX Stage
-	alu_output_ifc ex_alu_output();
-	branch_result_ifc ex_branch_result();
-	d_cache_input_ifc ex_d_cache_input();
-	d_cache_pass_through_ifc ex_d_cache_pass_through();
+    //rob interfaces
+    rob_reg_wr_ifc rob_reg_wr();
+    rob_mem_wr_ifc rob_mem_wr();
+    rob_status_ifc rob_status();
+    rob_branch_commit_ifc rob_branch_commit();
+    rob_jump_reg_commit_ifc rob_jump_reg_commit();
 
-	// ==== EX to MEM
-	pc_ifc e2m_pc();
-	d_cache_input_ifc e2m_d_cache_input();
-	d_cache_pass_through_ifc e2m_d_cache_pass_through();
+    //register renaming interfaces
+    register_rename_ifc phy_reg_output();
 
-	// |||| MEM Stage
-	cache_output_ifc mem_d_cache_output();
-	logic mem_done;
-	write_back_ifc mem_write_back();
+    //reg file interfaces
+    reg_file_output_ifc reg_file_data();
 
-	// ==== MEM to WB
-	write_back_ifc m2w_write_back();
+    //alu res stat interfaces
+    alu_res_stat_output_ifc alu_res_stat_output();
 
-	// xxxx Hazard control
-	logic lw_hazard;
-	hazard_control_ifc i2i_hc();
-	hazard_control_ifc i2d_hc();
-	hazard_control_ifc d2e_hc();
-	hazard_control_ifc e2m_hc();
-	hazard_control_ifc m2w_hc();
-	load_pc_ifc load_pc();
+    //alu interfaces
+    alu_output_ifc alu_output();
 
-	// xxxx Memory
-	axi_write_address axi_write_address();
-	axi_write_data axi_write_data();
-	axi_write_response axi_write_response();
-	axi_read_address axi_read_address();
-	axi_read_data axi_read_data();
+    //mem res stat interfaces
+    mem_addr_unit_st_output_ifc st_data_output();
+    mem_res_stat_status_ifc mem_res_stat_status();
+    d_cache_input_ifc d_cache_input();
 
-	axi_write_address mem_write_address[1]();
-	axi_write_data mem_write_data[1]();
-	axi_write_response mem_write_response[1]();
-	axi_read_address mem_read_address[2]();
-	axi_read_data mem_read_data[2]();
+    //d_cache interfaces
+    d_cache_output_ifc d_cache_output();
 
+    //cdb interfaces
+    common_data_bus_ifc cdb_output();
 
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	// |||| IF Stage
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	fetch_unit FETCH_UNIT(
-		.clk, .rst_n,
+    fetch_unit FETCH_UNIT (
+        .clk, .rst_n,
 
-		.i_hc         (i2i_hc),
-		.i_load_pc    (load_pc),
+        .i_hc(i_hc),
+        .i_load_pc(i_load_pc),
 
-		.o_pc_current (if_pc_current),
-		.o_pc_next    (if_pc_next)
-	);
+        .o_pc_current(pc_current),
+        .o_pc_next(pc_next)
+    );
 
-	i_cache I_CACHE(
-		.clk, .rst_n,
+    i_cache I_CACHE(
+        .clk, .rst_n,
 
-		.mem_read_address(mem_read_address[0]),
-		.mem_read_data   (mem_read_data[0]),
+        .mem_read_address(mem_read_address[0]),
+        .mem_read_data   (mem_read_data[0]),
+        
+        .i_pc_current (pc_current),
+        .i_pc_next    (pc_next),
+        
+        .out          (i_cache_output)
+    );
 
-		.i_pc_current (if_pc_current),
-		.i_pc_next    (if_pc_next),
+    instruction_queue INSTRUCTION_QUEUE(
+        .clk, .rst_n,
 
-		.out          (if_i_cache_output)
-	);
-	// If you want to change the line size and total size of instruction cache,
-	// uncomment the following two lines and change the parameter.
+        .if_i_cache_output(i_cache_output),
+        .d_hc(d_hc),
 
-	// defparam D_CACHE.INDEX_WIDTH = 9,
-	// 	D_CACHE.BLOCK_OFFSET_WIDTH = 2;
+        .inst_q_output(inst_q_output)
+    );
 
-	// ========================================================================
-	// ==== IF to DEC
-	// ========================================================================
-	pr_i2d PR_I2D(
-		.clk, .rst_n,
-		.i_hc(i2d_hc),
+    decoder DECODER(
+        .i_inst(inst_q_output),
 
-		.i_pc   (if_pc_current),     .o_pc   (i2d_pc),
-		.i_inst (if_i_cache_output), .o_inst (i2d_inst)
-	);
+        .out(decoder_output)
+    );
 
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	// |||| DEC Stage
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	decoder DECODER(
-		.i_pc(i2d_pc),
-		.i_inst(i2d_inst),
+    register_rename REGISTER_RENAME (
+        .clk, .rst_n,
 
-		.out(dec_decoder_output)
-	);
+        .decoder_output(decoder_output),
+        .rob_reg_wr(rob_reg_wr),
+        .rob_status(rob_status),
+        .branch_pred_hc(branch_pred_hc),
 
-	reg_file REG_FILE(
-		.clk,
+        .phy_reg_output(phy_reg_output)
+    );
 
-		.i_decoded(dec_decoder_output),
-		.i_wb(m2w_write_back), // WB stage
+    reorder_buffer REORDER_BUFFER (
+        .clk, .rst_n,
 
-		.out(dec_reg_file_output)
-	);
+        .decoder_output(decoder_output),
+        .d_hc(d_hc),
+        .rob_st_stall_hc(rob_st_stall_hc),
+        .cdb_output(cdb_output),
+        .st_data_output(st_data_output),
 
-	forward_unit FORWARD_UNIT(
-		.decoded     (dec_decoder_output),
-		.reg_data    (dec_reg_file_output),
+        .rob_status(rob_status),
+        .rob_reg_wr(rob_reg_wr),
+        .rob_mem_wr(rob_mem_wr),
+        .rob_branch_commit(rob_branch_commit),
+        .rob_jump_reg_commit(rob_jump_reg_commit)
+    );
 
-		.ex_ctl      (d2e_alu_pass_through),
-		.ex_data     (ex_alu_output),
-		.mem         (mem_write_back),
-		.wb          (m2w_write_back),
+    reg_file REG_FILE (
+        .clk, .rst_n,
 
-		.out         (dec_forward_unit_output),
-		.o_lw_hazard (lw_hazard)
-	);
+        .phy_reg_output(phy_reg_output),
+        .rob_reg_wr(rob_reg_wr),
+        .decoder_output(decoder_output),
 
-	decode_stage_glue DEC_STAGE_GLUE(
-		.i_decoded          (dec_decoder_output),
-		.i_reg_data         (dec_forward_unit_output),
+        .reg_file_data(reg_file_data)
+    );
 
-		.branch_decoded     (dec_branch_decoded),
+    alu_reservation_station ALU_RESERVATION_STATION (
+        .clk, .rst_n,
 
-		.o_alu_input        (dec_alu_input),
-		.o_alu_pass_through (dec_alu_pass_through)
-	);
+        .decoder_output(decoder_output),
+        .phy_reg_output(phy_reg_output),
+        .reg_file_data(reg_file_data),
+        .cdb_output(cdb_output),
+        .rob_status(rob_status),
+        .e_hc(e_hc),
+        .branch_pred_hc(branch_pred_hc),
 
-	// ========================================================================
-	// ==== DEC to EX
-	// ========================================================================
-	pr_d2e PR_D2E(
-		.clk, .rst_n,
-		.i_hc(d2e_hc),
+        .alu_res_stat_output(alu_res_stat_output)
+    );
 
-		.i_pc(i2d_pc), .o_pc(d2e_pc),
+    alu ALU (
+        .in(reserv_stat_output),
 
-		.i_alu_input        (dec_alu_input),
-		.o_alu_input        (d2e_alu_input),
-		.i_alu_pass_through (dec_alu_pass_through),
-		.o_alu_pass_through (d2e_alu_pass_through)
-	);
+        .out(alu_output),
+        .done(done)
+    );
 
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	// |||| EX Stage
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	alu ALU(
-		.in(d2e_alu_input),
-		.out(ex_alu_output),
-		.done
-	);
+    mem_reservation_station MEM_RESERVATION_STATION (
+        .clk, .rst_n,
 
-	ex_stage_glue EX_STAGE_GLUE (
-		.i_alu_output           (ex_alu_output),
-		.i_alu_pass_through     (d2e_alu_pass_through),
+        .decoder_output(decoder_output),
+        .phy_reg_output(phy_reg_output),
+        .reg_file_data(reg_file_data),
+        .cdb_output(cdb_output),
+        .rob_status(rob_status),
+        .m_hc(m_hc),
+        .branch_pred_hc(branch_pred_hc),
+        .rob_mem_wr(rob_mem_wr),
 
-		.o_branch_result        (ex_branch_result),
-		.o_d_cache_input        (ex_d_cache_input),
-		.o_d_cache_pass_through (ex_d_cache_pass_through)
-	);
+        .st_data_output(st_data_output),
+        .d_cache_input(d_cache_input)
+    );
 
-	// ========================================================================
-	// ==== EX to MEM
-	// ========================================================================
-	pr_e2m PR_E2M (
-		.clk, .rst_n,
-		.i_hc(e2m_hc),
+    d_cache D_CACHE (
+        .clk, .rst_n,
 
-		.i_pc(d2e_pc), .o_pc(e2m_pc),
-		.i_d_cache_input       (ex_d_cache_input),
-		.i_d_cache_pass_through(ex_d_cache_pass_through),
-
-		.o_d_cache_input       (e2m_d_cache_input),
-		.o_d_cache_pass_through(e2m_d_cache_pass_through)
-	);
-
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	// |||| MEM Stage
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	d_cache D_CACHE (
-		.clk, .rst_n,
-
-		.in(e2m_d_cache_input),
-		.out(mem_d_cache_output),
+		.in(d_cache_input),
+		.out(d_cache_output),
 
 		.mem_read_address(mem_read_address[1]),
 		.mem_read_data   (mem_read_data[1]),
@@ -262,136 +176,37 @@ module mips_core (
 		.mem_write_address(mem_write_address[0]),
 		.mem_write_data(mem_write_data[0]),
 		.mem_write_response(mem_write_response[0])
-	);
-	// If you want to change the line size and total size of data cache,
-	// uncomment the following two lines and change the parameter.
+    );
 
-	// defparam D_CACHE.INDEX_WIDTH = 9,
-	// 	D_CACHE.BLOCK_OFFSET_WIDTH = 2;
+    common_data_bus COMMON_DATA_BUS (
+        .mem_input(d_cache_input),
+        .mem_output(d_cache_output),
+        .alu_output(alu_output),
 
-	mem_stage_glue MEM_STAGE_GLUE (
-		.i_d_cache_output      (mem_d_cache_output),
-		.i_d_cache_pass_through(e2m_d_cache_pass_through),
-		.o_done                (mem_done),
-		.o_write_back          (mem_write_back)
-	);
+        .cdb_output(cdb_output)
+    );
 
-	// ========================================================================
-	// ==== MEM to WB
-	// ========================================================================
-	pr_m2w PR_M2W (
-		.clk, .rst_n,
+    hazard_controller HAZARD_CONTROLLER (
+        .clk, .rst_n,
 
-		.i_hc (m2w_hc),
-		.i_wb (mem_write_back),
-		.o_wb (m2w_write_back)
-	);
+        .i_cache_output(i_cache_output),            //used for i_hc
+        .inst_q_output(inst_q_output),
+        .decoder_output(decoder_output),
+        .rob_status(rob_status),                    //used for d_hc
+        .alu_res_stat_status(alu_res_stat_status),  //used for d_hc
+        .mem_res_stat_status(mem_res_stat_status),  //used for d_hc, rob_st_hc
+        .d_cache_input(d_cache_input),              //used for e_hc, m_hc
+        .d_cache_output(d_cache_output),            //used for e_hc, m_hc
+        .rob_branch_commit(rob_branch_commit),      //used for branch_pred_hc
+        .rob_jump_reg_commit(rob_jump_reg_commit),
 
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	// |||| WB Stage
-	// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-	// NO LOGIC
+        .i_hc(i_hc),
+        .d_hc(d_hc),
+        .rob_st_hc(rob_st_hc),
+        .e_hc(e_hc),
+        .m_hc(m_hc),
+        .branch_pred_hc(branch_pred_hc),
+        .i_load_pc(i_load_pc)
+    );
 
-	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	// xxxx Hazard Controller
-	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	hazard_controller HAZARD_CONTROLLER (
-		.clk, .rst_n,
-
-		.if_i_cache_output,
-		.dec_pc(i2d_pc),
-		.dec_branch_decoded,
-		.ex_pc(d2e_pc),
-		.lw_hazard,
-		.ex_branch_result,
-		.mem_done,
-
-		.i2i_hc,
-		.i2d_hc,
-		.d2e_hc,
-		.e2m_hc,
-		.m2w_hc,
-		.load_pc
-	);
-
-	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	// xxxx Memory Arbiter
-	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	memory_arbiter #(.WRITE_MASTERS(1), .READ_MASTERS(2)) MEMORY_ARBITER (
-		.clk, .rst_n,
-		.axi_write_address,
-		.axi_write_data,
-		.axi_write_response,
-		.axi_read_address,
-		.axi_read_data,
-
-		.mem_write_address,
-		.mem_write_data,
-		.mem_write_response,
-		.mem_read_address,
-		.mem_read_data
-	);
-
-	assign axi_write_address.AWREADY = AWREADY;
-	assign AWVALID = axi_write_address.AWVALID;
-	assign AWID = axi_write_address.AWID;
-	assign AWLEN = axi_write_address.AWLEN;
-	assign AWADDR = axi_write_address.AWADDR;
-
-	assign axi_write_data.WREADY = WREADY;
-	assign WVALID = axi_write_data.WVALID;
-	assign WLAST = axi_write_data.WLAST;
-	assign WID = axi_write_data.WID;
-	assign WDATA = axi_write_data.WDATA;
-
-	assign axi_write_response.BVALID = BVALID;
-	assign axi_write_response.BID = BID;
-	assign BREADY = axi_write_response.BREADY;
-
-	assign axi_read_address.ARREADY = ARREADY;
-	assign ARVALID = axi_read_address.ARVALID;
-	assign ARID = axi_read_address.ARID;
-	assign ARLEN = axi_read_address.ARLEN;
-	assign ARADDR = axi_read_address.ARADDR;
-
-	assign RREADY = axi_read_data.RREADY;
-	assign axi_read_data.RVALID = RVALID;
-	assign axi_read_data.RLAST = RLAST;
-	assign axi_read_data.RID = RID;
-	assign axi_read_data.RDATA = RDATA;
-
-	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-	// xxxx Debug and statistic collect logic (Not synthesizable)
-	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-`ifdef SIMULATION
-	always_ff @(posedge clk)
-	begin
-		/*
-			* If an instruction goes into d2e pipeline register and is not a
-			* nop, we count it as an instruction we executed.
-			*/
-		if (!i2d_hc.stall
-			&& !d2e_hc.flush
-			&& dec_decoder_output.valid
-			&& i2d_inst.data)
-		begin
-			pc_event(i2d_pc.pc);
-		end
-
-		if (m2w_write_back.uses_rw)
-		begin
-			wb_event(m2w_write_back.rw_addr, m2w_write_back.rw_data);
-		end
-
-		if (!e2m_hc.stall
-			&& !m2w_hc.flush
-			&& mem_d_cache_output.valid)
-		begin
-			if (e2m_d_cache_input.mem_action == READ)
-				ls_event(e2m_d_cache_input.mem_action, e2m_d_cache_input.addr, mem_d_cache_output.data);
-			else
-				ls_event(e2m_d_cache_input.mem_action, e2m_d_cache_input.addr, e2m_d_cache_input.data);
-		end
-	end
-`endif
 endmodule

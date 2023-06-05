@@ -27,17 +27,6 @@
  */
 `include "mips_core.svh"
 
-interface d_cache_input_ifc ();
-	logic valid;
-	mips_core_pkg::MemAccessType mem_action;
-	logic [`ADDR_WIDTH - 1 : 0] addr;
-	logic [`ADDR_WIDTH - 1 : 0] addr_next;
-	logic [`DATA_WIDTH - 1 : 0] data;
-
-	modport in  (input valid, mem_action, addr, addr_next, data);
-	modport out (output valid, mem_action, addr, addr_next, data);
-endinterface
-
 module d_cache #(
 	parameter INDEX_WIDTH = 6,  // 2 * 1 KB Cache Size 
 	parameter BLOCK_OFFSET_WIDTH = 2,
@@ -51,7 +40,7 @@ module d_cache #(
 	d_cache_input_ifc.in in,
 
 	// Response
-	cache_output_ifc.out out,
+	d_cache_output_ifc.out out,
 
 	// AXI interfaces
 	axi_write_address.master mem_write_address,
