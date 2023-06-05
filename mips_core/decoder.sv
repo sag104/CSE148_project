@@ -12,7 +12,7 @@
 `include "mips_core.svh"
 
 module decoder (
-	inst_q_ouput_ifc.in i_inst,
+	inst_q_output_ifc.in i_inst,
 
 	decoder_output_ifc.out out
 );
@@ -357,6 +357,7 @@ module decoder (
 					rs();
 					rt();
 					out.is_branch_jump = 1'b1;
+					out.is_branch = 1'b1;
 					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
@@ -366,6 +367,7 @@ module decoder (
 					rs();
 					rt();
 					out.is_branch_jump = 1'b1;
+					out.is_branch = 1'b1;
 					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
@@ -375,6 +377,7 @@ module decoder (
 					rs();
 					rt();
 					out.is_branch_jump = 1'b1;
+					out.is_branch = 1'b1;
 					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
@@ -387,6 +390,7 @@ module decoder (
 					rs();
 					rt();
 					out.is_branch_jump = 1'b1;
+					out.is_branch = 1'b1;
 					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
@@ -396,6 +400,7 @@ module decoder (
 					rs();
 					rt();
 					out.is_branch_jump = 1'b1;
+					out.is_branch = 1'b1;
 					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 

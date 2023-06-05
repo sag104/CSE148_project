@@ -15,20 +15,20 @@ module mem_reservation_station (
     d_cache_input_ifc.out d_cache_input
 );
 
-    struct entry {
+    struct {
         logic [`ROB_DEPTH_BITS - 1 : 0] tag;
         mips_core_pkg::MemAccessType mem_action;
         logic [31:0] addr;
         logic [31:0] offset;
-        logic [ROB_DEPTH_BITS : 0] q_reg_add;
+        logic [ROB_DEPTH_BITS : 0] q_reg_addr;
         logic [31:0] v_reg_val;
         logic [ROB_DEPTH_BITS : 0] q_reg_val;
-    };
+    } entry;
 
-    struct store_address {
+    struct {
         logic valid;
         logic [31:0] addr;
-    };
+    } store_address;
 
     entry mem_add_table [`MEM_RES_STAT_DEPTH];
 
@@ -66,17 +66,14 @@ module mem_reservation_station (
         full            = (wr_ptr[MEM_RES_STAT_DEPTH_BITS-1:0] == rd_ptr[MEM_RES_STAT_DEPTH_BITS-1:0]) 
                         && (wr_ptr[MEM_RES_STAT_DEPTH_BITS] != rd_ptr[MEM_RES_STAT_DEPTH_BITS]);
 
-        ready       = (!mem_add_table[0].q_reg_add) & (!mem_add_table[0].q_reg_val);
+        ready       = (!mem_add_table[rd_ptr].q_reg_addr) & (!mem_add_table[rd_ptr].q_reg_val);
         st_ready    = ready & (mem_add_table[rd_ptr].mem_action == WRITE);
-
-        
 
         st_data_output.valid_st     = st_ready;
         st_data_output.tag          = mem_add_table[rd_ptr].tag;
         st_data_output.mem_addr     = mem_add_table[rd_ptr].addr;
         st_data_output.reg_value    = mem_add_table[rd_ptr].v_reg_val;
 
-        
         ld_ready    = ready & (mem_add_table[rd_ptr].mem_action == READ) & !(address_match(mem_add_table[rd_ptr].addr));
 
         mem_res_stat_status.full        = full;
@@ -161,19 +158,19 @@ module mem_reservation_station (
 
                         if(phy_reg_output.rt_ready) begin
                             mem_add_table[wr_ptr].addr <= decoder_output.immediate + reg_file_data.rt_data;
-                            mem_add_table[wr_ptr].q_reg_add <= 0;
+                            mem_add_table[wr_ptr].q_reg_addr <= 0;
                         end else begin
                             mem_add_table[wr_ptr].addr <= 0;
-                            mem_add_table[wr_ptr].q_reg_add <= {1'b1, phy_reg_output.rt_tag};
+                            mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rt_tag};
                         end
                     end else begin
                             mem_add_table[wr_ptr].q_reg_val <= 0;
                         if(phy_reg_output.rs_ready) begin
                             mem_add_table[wr_ptr].addr <= decoder_output.immediate + reg_file_data.rs_data;
-                            mem_add_table[wr_ptr].q_reg_add <= 0;
+                            mem_add_table[wr_ptr].q_reg_addr <= 0;
                         end else begin
                             mem_add_table[wr_ptr].addr <= 0;
-                            mem_add_table[wr_ptr].q_reg_add <= {1'b1, phy_reg_output.rs_tag};
+                            mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rs_tag};
                         end
                     end
                     wr_ptr <= wr_ptr + 1;
@@ -181,8 +178,8 @@ module mem_reservation_station (
 
                 if(cdb_output.valid) begin
                     for (int a = 0; a < MEM_RES_STAT_DEPTH; a++) begin
-                        if (mem_add_table[a].q_reg_add == {1'b1, cdb_output.tag}) begin
-                            mem_add_table[a].q_reg_add <= 0;
+                        if (mem_add_table[a].q_reg_addr == {1'b1, cdb_output.tag}) begin
+                            mem_add_table[a].q_reg_addr <= 0;
                             mem_add_table[a].addr <= mem_add_table[a].offset + cdb_output.value;
                         end
                         if (mem_add_table[a].q_reg_val == {1'b1, cdb_output.tag}) begin

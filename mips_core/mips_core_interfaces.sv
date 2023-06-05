@@ -7,18 +7,6 @@ interface hazard_control_ifc ();
 	modport out (output flush, stall);
 endinterface
 
-interface branch_pred_ifc ();
-	logic [`ADDR_WIDTH - 1 : 0] pc;
-	mips_core_pkg::BranchOutcome prediction;
-	mips_core_pkg::BranchOutcome prediction_gshare;
-	mips_core_pkg::BranchOutcome prediction_2bit;
-	logic [`G_HISTORY_BITS - 1 : 0] ghistory;
-	logic [`ADDR_WIDTH - 1 : 0] recovery_target;
-
-	modport in(input pc, prediction, prediction_gshare, prediction_2bit, ghistory, recovery_target);
-	modport out(output pc, prediction, prediction_gshare, prediction_2bit, ghistory, recovery_target);
-endinterface
-
 interface branch_pred_hc_ifc ();
 	// Stall signal has higher priority
 	logic flush;	//flush on mispredict
@@ -80,6 +68,7 @@ interface decoder_output_ifc ();
 	logic [`ADDR_WIDTH - 1 : 0] pc;
 	mips_core_pkg::AluCtl alu_ctl;
 	logic is_branch_jump;
+	logic is_branch;
 	logic is_jump;
 	logic is_jump_reg;
 	logic [`ADDR_WIDTH - 1 : 0] branch_target;
@@ -99,10 +88,10 @@ interface decoder_output_ifc ();
 	logic uses_rw;
 	mips_core_pkg::MipsReg rw_addr;
 
-	modport in  (input valid, pc, alu_ctl, is_branch_jump, is_jump, is_jump_reg,
+	modport in  (input valid, pc, alu_ctl, is_branch_jump, is_branch, is_jump, is_jump_reg,
 		branch_target, is_mem_access, mem_action, uses_rs, rs_addr, uses_rt,
 		rt_addr, uses_immediate, immediate, uses_rw, rw_addr);
-	modport out (output valid, pc, alu_ctl, is_branch_jump, is_jump, is_jump_reg,
+	modport out (output valid, pc, alu_ctl, is_branch_jump, is_branch, is_jump, is_jump_reg,
 		branch_target, is_mem_access, mem_action, uses_rs, rs_addr, uses_rt,
 		rt_addr, uses_immediate, immediate, uses_rw, rw_addr);
 endinterface
@@ -129,8 +118,8 @@ interface rob_mem_wr_ifc();
     logic [`ADDR_WIDTH - 1 : 0] mem_wr_addr;
     logic [`DATA_WIDTH - 1 : 0] mem_wr_data;
 
-    modport in  (input mem_wr_en, mem_wr_data, mem_data);
-    modport out (output mem_wr_en, mem_wr_data, mem_data);
+    modport in  (input mem_wr_en, mem_wr_addr, mem_wr_data);
+    modport out (output mem_wr_en, mem_wr_addr, mem_wr_data);
 endinterface
 
 interface rob_branch_commit_ifc();
@@ -145,8 +134,8 @@ interface rob_jump_reg_commit_ifc();
     logic valid_jump_reg;
     logic [`ADDR_WIDTH - 1 : 0] jump_target;
 
-    modport in  (input valid_branch, branch_outcome);
-    modport out (output valid_branch, branch_outcome);
+    modport in  (input valid_jump_reg, jump_target);
+    modport out (output valid_jump_reg, jump_target);
 endinterface
 
 interface mem_addr_unit_st_output_ifc();
@@ -199,15 +188,6 @@ interface alu_output_ifc ();
 
 	modport in  (input valid, tag, result);
 	modport out (output valid, tag, result);
-endinterface
-
-interface common_data_bus_ifc ();
-	logic valid;
-    logic [`ROB_DEPTH_BITS - 1 : 0] tag;
-    logic [31:0] data;
-    
-	modport in  (input valid, tag, data);
-	modport out  (output valid, tag, data);
 endinterface
 
 interface common_data_bus_ifc ();

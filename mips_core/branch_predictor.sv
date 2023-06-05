@@ -19,7 +19,7 @@ module branch_controller (
 	rob_branch_commit_ifc.in rob_branch_commit,
 	input branch_pred_info branch_fb,
 
-    branch_pred_ifc.out branch_pred_output
+    output branch_pred_storage branch_pred_output
 );
 
 	// Change the following line to switch predictor
@@ -49,7 +49,7 @@ module branch_controller (
 		branch_pred_output.recovery_target =
 			(branch_pred_output.prediction == TAKEN)
 			? decoder_output.pc + `ADDR_WIDTH'd8
-			: decoder_output.target;
+			: decoder_output.branch_target;
         branch_pred_output.pc = decoder_output.pc;
 	end
 

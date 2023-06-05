@@ -13,7 +13,7 @@
 `include "mips_core.svh"
 
 module alu (
-	reserv_stat_alu_ifc.in in,
+	alu_res_stat_output_ifc.in in,
 	alu_output_ifc.out out,
 	output logic done
 );

@@ -4,13 +4,13 @@ module instruction_queue (
 
     i_cache_output_ifc.in i_cache_output,
     hazard_control_ifc.in d_hc,
-    inst_q_output_ifc.out inst_q_output,
+    inst_q_output_ifc.out inst_q_output
 );
 
-    struct inst {
+    struct {
         logic [31:0] pc;
         logic [31:0] data;
-    };
+    } inst;
 
     inst inst_queue [`INSTRUCTION_QUEUE_DEPTH];
     logic [`INSTRUCTION_QUEUE_DEPTH_BITS:0] wr_ptr, rd_ptr;

@@ -5,19 +5,19 @@ module hazard_controller (
     i_cache_output_ifc.in i_cache_output,
     inst_q_output_ifc.in inst_q_output,
     decoder_output_ifc.in decoder_output,
-    write_to_rob_ifc.in rob_empty_spot,
-    alu_res_stat_status.in alu_res_stat_status,
-    mem_res_stat_status.in mem_res_stat_status,
+    rob_status_ifc.in rob_status,
+    alu_res_stat_status_ifc.in alu_res_stat_status,
+    mem_res_stat_status_ifc.in mem_res_stat_status,
     d_cache_input_ifc.in d_cache_input,
     d_cache_output_ifc.in d_cache_output,
-    rob_branch_commit.in rob_branch_commit,
-    rob_jump_reg_commit.in rob_jump_reg_commit,
+    rob_branch_commit_ifc.in rob_branch_commit,
+    rob_jump_reg_commit_ifc.in rob_jump_reg_commit,
     
-    hazard_controller_ifc.in i_hc,
-    hazard_controller_ifc.in d_hc,
-    hazard_controller_ifc.in rob_st_hc,
-    hazard_controller_ifc.in e_hc,
-    hazard_controller_ifc.in m_hc,
+    hazard_control_ifc.in i_hc,
+    hazard_control_ifc.in d_hc,
+    hazard_control_ifc.in rob_st_hc,
+    hazard_control_ifc.in e_hc,
+    hazard_control_ifc.in m_hc,
     branch_pred_hc_ifc.in branch_pred_hc,
     load_pc_ifc.in i_load_pc
 );
@@ -30,18 +30,12 @@ module hazard_controller (
         .req_valid(req_valid),
 		.decoder_output(decoder_output),
         .rob_branch_commit(rob_branch_commit),
-        .branch_fb(branch_pred_info[bp_rd_ptr]),
+        .branch_fb(bp_buffer[bp_rd_ptr]),
 
         .branch_pred_output(branch_pred_output)
 	);
 
-    struct branch_pred_info {
-        logic pc;
-        logic ghistory;
-        logic prediction;
-        logic prediction_gshare;
-        logic prediction_2bit;
-    };
+    branch_pred_storage branch_pred_output;
 
     branch_pred_info bp_buffer [`ROB_DEPTH];
     logic [`ROB_DEPTH_BITS - 1 : 0] bp_wr_ptr, bp_rd_ptr;

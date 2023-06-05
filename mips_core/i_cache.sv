@@ -58,14 +58,9 @@ module i_cache #(
 	logic [LINE_SIZE - 1 : 0] databank_select;
 	logic [LINE_SIZE - 1 : 0] databank_we;
 	logic [`DATA_WIDTH - 1 : 0] databank_wdata;
-	logic [`D]
 	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
 	logic [`DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
-
-	logic [127:0] databank_line;
-
-	assign databank_line = {databank[0].databank_rd_addr, databank[1], databank[2], databank[3]}
 
 	// databanks
 	genvar g;
@@ -79,25 +74,6 @@ module i_cache #(
 				.clk,
 				.i_we (databank_we[g]),
 				.i_wdata(databank_wdata),
-				.i_waddr(databank_waddr),
-				.i_raddr(databank_raddr),
-
-				.o_rdata(databank_rdata[g])
-			);
-		end
-	endgenerate
-
-	genvar g;
-	generate
-		for (g = 0; g < LINE_SIZE; g++)
-		begin : databanks
-			cache_bank #(
-				.DATA_WIDTH (`DATA_WIDTH),
-				.ADDR_WIDTH (INDEX_WIDTH)
-			) databank (
-				.clk,
-				.i_we (databank_we[g]),
-				.i_wdata(databank_wdata[g]),
 				.i_waddr(databank_waddr),
 				.i_raddr(databank_raddr),
 

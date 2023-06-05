@@ -1,3 +1,4 @@
+mips_core/mips_core_pkg.sv
 mips_core/alu.sv
 mips_core/alu_reservation_station.sv
 mips_core/branch_predictor.sv
@@ -14,7 +15,6 @@ mips_core/memory_arbiter.sv
 mips_core/memory_interfaces.sv
 mips_core/mips_core.sv
 mips_core/mips_core_interfaces.sv
-mips_core/mips_core_pkg.sv
 mips_core/reg_file.sv
 mips_core/register_rename.sv
 mips_core/reorder_buffer.sv

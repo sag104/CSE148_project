@@ -1,6 +1,45 @@
-module mips_core(
-    input clk,
-    input rst_n
+`include "mips_core.svh"
+
+`ifdef SIMULATION
+import "DPI-C" function void pc_event (input int pc);
+import "DPI-C" function void wb_event (input int addr, input int data);
+import "DPI-C" function void ls_event (input int op, input int addr, input int data);
+`endif
+
+module mips_core (
+	// General signals
+	input clk,    // Clock
+	input rst_n,  // Synchronous reset active low
+	output done,  // Execution is done
+
+	// AXI interfaces
+	input AWREADY,
+	output AWVALID,
+	output [3:0] AWID,
+	output [3:0] AWLEN,
+	output [`ADDR_WIDTH - 1 : 0] AWADDR,
+
+	input WREADY,
+	output WVALID,
+	output WLAST,
+	output [3:0] WID,
+	output [`DATA_WIDTH - 1 : 0] WDATA,
+
+	output BREADY,
+	input BVALID,
+	input [3:0] BID,
+
+	input ARREADY,
+	output ARVALID,
+	output [3:0] ARID,
+	output [3:0] ARLEN,
+	output [`ADDR_WIDTH - 1 : 0] ARADDR,
+
+	output RREADY,
+	input RVALID,
+	input RLAST,
+	input [3:0] RID,
+	input [`DATA_WIDTH - 1 : 0] RDATA
 );
 
     //Interfaces sorted by where they output from
@@ -38,6 +77,7 @@ module mips_core(
 
     //alu res stat interfaces
     alu_res_stat_output_ifc alu_res_stat_output();
+    alu_res_stat_status_ifc alu_res_stat_status();
 
     //alu interfaces
     alu_output_ifc alu_output();
@@ -52,6 +92,19 @@ module mips_core(
 
     //cdb interfaces
     common_data_bus_ifc cdb_output();
+
+    // xxxx Memory
+	axi_write_address axi_write_address();
+	axi_write_data axi_write_data();
+	axi_write_response axi_write_response();
+	axi_read_address axi_read_address();
+	axi_read_data axi_read_data();
+
+	axi_write_address mem_write_address[1]();
+	axi_write_data mem_write_data[1]();
+	axi_write_response mem_write_response[1]();
+	axi_read_address mem_read_address[2]();
+	axi_read_data mem_read_data[2]();
 
     fetch_unit FETCH_UNIT (
         .clk, .rst_n,
@@ -78,7 +131,7 @@ module mips_core(
     instruction_queue INSTRUCTION_QUEUE(
         .clk, .rst_n,
 
-        .if_i_cache_output(i_cache_output),
+        .i_cache_output(i_cache_output),
         .d_hc(d_hc),
 
         .inst_q_output(inst_q_output)
@@ -105,8 +158,10 @@ module mips_core(
         .clk, .rst_n,
 
         .decoder_output(decoder_output),
+        .phy_reg_output(phy_reg_output),
         .d_hc(d_hc),
-        .rob_st_stall_hc(rob_st_stall_hc),
+        .rob_st_hc(rob_st_hc),
+        .mispredict_hc(mispredict_hc),
         .cdb_output(cdb_output),
         .st_data_output(st_data_output),
 
@@ -138,11 +193,12 @@ module mips_core(
         .e_hc(e_hc),
         .branch_pred_hc(branch_pred_hc),
 
-        .alu_res_stat_output(alu_res_stat_output)
+        .alu_res_stat_output(alu_res_stat_output),
+        .alu_res_stat_status(alu_res_stat_status)
     );
 
     alu ALU (
-        .in(reserv_stat_output),
+        .in(alu_res_stat_output),
 
         .out(alu_output),
         .done(done)
@@ -161,7 +217,8 @@ module mips_core(
         .rob_mem_wr(rob_mem_wr),
 
         .st_data_output(st_data_output),
-        .d_cache_input(d_cache_input)
+        .d_cache_input(d_cache_input),
+        .mem_res_stat_status(mem_res_stat_status)
     );
 
     d_cache D_CACHE (
@@ -208,5 +265,51 @@ module mips_core(
         .branch_pred_hc(branch_pred_hc),
         .i_load_pc(i_load_pc)
     );
+
+    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	// xxxx Memory Arbiter
+	// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	memory_arbiter #(.WRITE_MASTERS(1), .READ_MASTERS(2)) MEMORY_ARBITER (
+		.clk, .rst_n,
+		.axi_write_address,
+		.axi_write_data,
+		.axi_write_response,
+		.axi_read_address,
+		.axi_read_data,
+
+		.mem_write_address,
+		.mem_write_data,
+		.mem_write_response,
+		.mem_read_address,
+		.mem_read_data
+	);
+
+	assign axi_write_address.AWREADY = AWREADY;
+	assign AWVALID = axi_write_address.AWVALID;
+	assign AWID = axi_write_address.AWID;
+	assign AWLEN = axi_write_address.AWLEN;
+	assign AWADDR = axi_write_address.AWADDR;
+
+	assign axi_write_data.WREADY = WREADY;
+	assign WVALID = axi_write_data.WVALID;
+	assign WLAST = axi_write_data.WLAST;
+	assign WID = axi_write_data.WID;
+	assign WDATA = axi_write_data.WDATA;
+
+	assign axi_write_response.BVALID = BVALID;
+	assign axi_write_response.BID = BID;
+	assign BREADY = axi_write_response.BREADY;
+
+	assign axi_read_address.ARREADY = ARREADY;
+	assign ARVALID = axi_read_address.ARVALID;
+	assign ARID = axi_read_address.ARID;
+	assign ARLEN = axi_read_address.ARLEN;
+	assign ARADDR = axi_read_address.ARADDR;
+
+	assign RREADY = axi_read_data.RREADY;
+	assign axi_read_data.RVALID = RVALID;
+	assign axi_read_data.RLAST = RLAST;
+	assign axi_read_data.RID = RID;
+	assign axi_read_data.RDATA = RDATA;
 
 endmodule

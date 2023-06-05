@@ -1,4 +1,6 @@
-module alu_RES_STAT (
+`include "mips_core.svh"
+
+module alu_reservation_station (
     input logic clk,
     input logic rst_n,
 	decoder_output_ifc.in decoder_output,
@@ -13,7 +15,7 @@ module alu_RES_STAT (
     alu_res_stat_status_ifc.out alu_res_stat_status
 );
 
-    struct entry {
+    struct {
         logic valid;
         mips_core_pkg::AluCtl alu_ctl;
         logic [`ROB_DEPTH_BITS - 1 : 0] tag;
@@ -21,7 +23,7 @@ module alu_RES_STAT (
         logic [31:0] v_2;
         logic [ROB_DEPTH_BITS : 0] q_1;
         logic [ROB_DEPTH_BITS : 0] q_2;
-    };
+    } entry;
 
     entry reserv_stat_table [RES_STAT_DEPTH];
     logic full, ready;
@@ -96,7 +98,7 @@ module alu_RES_STAT (
                 end
 
                 if(cdb_output.valid) begin
-                    for (int a = 0; a < `RES_STAT_DEPTH; a++) begin
+                    for (int a = 0; a < `ALU_RES_STAT_DEPTH; a++) begin
                         if(reserv_stat_table[a].valid) begin
                             if (reserv_stat_table[a].q_1 == {1'b1, cdb_output.tag}) begin
                                 reserv_stat_table[a].q_1 <= 0;

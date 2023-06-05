@@ -86,4 +86,30 @@ typedef enum logic {
 	TAKEN
 } BranchOutcome;
 
+typedef struct packed {
+	logic pc;
+	logic ghistory;
+	logic prediction;
+	logic prediction_gshare;
+	logic prediction_2bit;
+} branch_pred_info;
+
+typedef struct packed {
+	logic [26 - 1 : 0] pc;
+	mips_core_pkg::BranchOutcome prediction;
+	mips_core_pkg::BranchOutcome prediction_gshare;
+	mips_core_pkg::BranchOutcome prediction_2bit;
+	logic [12 - 1 : 0] ghistory;
+	logic [26 - 1 : 0] recovery_target;
+} branch_pred_storage;
+
+typedef struct packed {
+	logic [2:0] inst_type;
+	logic [5:0] reg_dest;
+	logic [31:0] mem_dest;
+	logic [31:0] value;
+	logic jump_reg;
+	logic ready;
+} rob_entry;
+
 endpackage
