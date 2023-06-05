@@ -1,8 +1,0 @@
-__pycache__/
-build/
-*.json
-*.log
-*.v
-configs.mk
-synthesis.ys
-timing.sta
