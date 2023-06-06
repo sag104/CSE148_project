@@ -21,8 +21,8 @@ int stream_dump = 0;
 int stream_print = 0;
 int stream_check = 1;
 const char *benchmark = "nqueens";
-// std::string hexfiles_dir = "/home/linux/ieng6/cs148sp22/public";
-std::string hexfiles_dir = "..";
+std::string hexfiles_dir = "/home/linux/ieng6/cs148sp23/public";
+//std::string hexfiles_dir = "..";
 
 vluint64_t main_time = 0; // Current simulation time
 // This is a 64-bit integer to reduce wrap over issues and
@@ -262,6 +262,7 @@ int main(int argc, char **argv)
     while (!top->done && !(interrupt && main_time >= stop_time))
     {
         top->clk = !top->clk; // Toggle clock
+	cout <<
         if (top->clk)
             memory_driver->consume(main_time);
         if (main_time == 100)

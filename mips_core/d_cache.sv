@@ -8,7 +8,7 @@
  * set via INDEX_WIDTH and BLOCK_OFFSET_WIDTH parameters. Notice that line size
  * means number of words (each consist of 32 bit) in a line. Because all
  * addresses in mips_core are 26 byte addresses, so the sum of TAG_WIDTH,
- * INDEX_WIDTH and BLOCK_OFFSET_WIDTH is `ADDR_WIDTH - 2.
+ * INDEX_WIDTH and BLOCK_OFFSET_WIDTH is ADDR_WIDTH - 2.
  * The ASSOCIATIVITY is fixed at 2 because of the replacement policy. The replacement
  * policy also needs changes when changing the ASSOCIATIVITY 
  *
@@ -25,7 +25,7 @@
  *
  * See wiki page "Synchronous Caches" for details.
  */
-`include "mips_core.svh"
+import mips_core_pkg::*;
 
 module d_cache #(
 	parameter INDEX_WIDTH = 6,  // 2 * 1 KB Cache Size 
@@ -49,7 +49,7 @@ module d_cache #(
 	axi_read_address.master mem_read_address,
 	axi_read_data.master mem_read_data
 );
-	localparam TAG_WIDTH = `ADDR_WIDTH - INDEX_WIDTH - BLOCK_OFFSET_WIDTH - 2;
+	localparam TAG_WIDTH = ADDR_WIDTH - INDEX_WIDTH - BLOCK_OFFSET_WIDTH - 2;
 	localparam LINE_SIZE = 1 << BLOCK_OFFSET_WIDTH;
 	localparam DEPTH = 1 << INDEX_WIDTH;
 
@@ -68,7 +68,7 @@ module d_cache #(
 
 	logic [INDEX_WIDTH - 1 : 0] i_index_next;
 
-	assign {i_tag, i_index, i_block_offset} = in.addr[`ADDR_WIDTH - 1 : 2];
+	assign {i_tag, i_index, i_block_offset} = in.addr[ADDR_WIDTH - 1 : 2];
 	assign i_index_next = in.addr_next[BLOCK_OFFSET_WIDTH + 2 +: INDEX_WIDTH];
 	// Above line uses +: slice, a feature of SystemVerilog
 	// See https://stackoverflow.com/questions/18067571
@@ -90,10 +90,10 @@ module d_cache #(
 	// databank signals
 	logic [LINE_SIZE - 1 : 0] databank_select;
 	logic [LINE_SIZE - 1 : 0] databank_we;
-	logic [`DATA_WIDTH - 1 : 0] databank_wdata;
+	logic [DATA_WIDTH - 1 : 0] databank_wdata;
 	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
-	logic [`DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
+	logic [DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
 
 	// databanks
 	genvar g;
@@ -101,7 +101,7 @@ module d_cache #(
 		for (g = 0; g < LINE_SIZE; g++)
 		begin : databanks
 			cache_bank #(
-				.DATA_WIDTH (`DATA_WIDTH),
+				.DATA_WIDTH (DATA_WIDTH),
 				.ADDR_WIDTH (INDEX_WIDTH)
 			) databank (
 				.clk,
@@ -141,7 +141,7 @@ module d_cache #(
 	logic [DEPTH - 1 : 0] dirty_bits;
 
 	// Shift registers for flushing
-	logic [`DATA_WIDTH - 1 : 0] shift_rdata[LINE_SIZE];
+	logic [DATA_WIDTH - 1 : 0] shift_rdata[LINE_SIZE];
 
 	// Intermediate signals
 	logic hit, miss;
@@ -227,6 +227,7 @@ module d_cache #(
 	begin
 		out.valid = hit;
 		out.data = databank_rdata[i_block_offset];
+		out.tag = in.tag;
 	end
 
 	always_comb

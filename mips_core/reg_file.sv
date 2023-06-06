@@ -11,7 +11,7 @@
  *
  * See wiki page "Branch and Jump" for details.
  */
-`include "mips_core.svh"
+import mips_core_pkg::*;
 
 module reg_file (
 	input logic clk,
@@ -22,14 +22,14 @@ module reg_file (
     reg_file_output_ifc.out reg_file_data
 );
 
-logic [`DATA_WIDTH - 1 : 0] regs [64];
+logic [DATA_WIDTH - 1 : 0] regs [64];
 
 assign reg_file_data.rs_data = decoder_output.uses_rs ? regs[phy_reg_output.rs_phy] : '0;
 assign reg_file_data.rt_data = decoder_output.uses_rt ? regs[phy_reg_output.rt_phy] : '0;
 
 always_ff @(posedge clk) begin
     if(!rst_n) begin
-        regs <= '0;
+        regs <= '{default:0};
     end else if(rob_reg_wr.reg_wr_en) begin
         regs[rob_reg_wr.reg_wr_addr] <= rob_reg_wr.reg_wr_data;
     end

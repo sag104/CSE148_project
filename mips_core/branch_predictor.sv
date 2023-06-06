@@ -8,7 +8,7 @@
  *
  * See wiki page "Branch and Jump" for details.
  */
-`include "mips_core.svh"
+import mips_core_pkg::*;
 
 module branch_controller (
 	input clk,    // Clock
@@ -41,14 +41,14 @@ module branch_controller (
 		.i_fb_prediction (branch_fb.prediction),
 		.i_fb_prediction_gshare (branch_fb.prediction_gshare),
 		.i_fb_prediction_2bit (branch_fb.prediction_2bit),
-		.i_fb_outcome    (branch_fb.branch_outcome)
+		.i_fb_outcome    (rob_branch_commit.branch_outcome)
 	);
 
 	always_comb
 	begin
 		branch_pred_output.recovery_target =
 			(branch_pred_output.prediction == TAKEN)
-			? decoder_output.pc + `ADDR_WIDTH'd8
+			? decoder_output.pc + 8
 			: decoder_output.branch_target;
         branch_pred_output.pc = decoder_output.pc;
 	end
@@ -61,34 +61,34 @@ module branch_predictor_tournament (
 
 	// Request	
 	input logic i_req_valid,
-	input logic [`ADDR_WIDTH - 1 : 0] i_req_pc,
-	input logic [`ADDR_WIDTH - 1 : 0] i_req_target,
+	input logic [ADDR_WIDTH - 1 : 0] i_req_pc,
+	input logic [ADDR_WIDTH - 1 : 0] i_req_target,
 	output mips_core_pkg::BranchOutcome o_req_prediction,
 	output mips_core_pkg::BranchOutcome o_req_prediction_gshare,
 	output mips_core_pkg::BranchOutcome o_req_prediction_2bit,
-	output logic [`G_HISTORY_BITS - 1 : 0]o_req_ghistory,
+	output logic [G_HISTORY_BITS - 1 : 0]o_req_ghistory,
 
 	// Feedback
 	input logic i_fb_valid,
-	input logic [`ADDR_WIDTH - 1 : 0] i_fb_pc,
-	input logic [`G_HISTORY_BITS - 1 : 0]i_fb_ghistory,
+	input logic [ADDR_WIDTH - 1 : 0] i_fb_pc,
+	input logic [G_HISTORY_BITS - 1 : 0]i_fb_ghistory,
 	input mips_core_pkg::BranchOutcome i_fb_prediction,
 	input mips_core_pkg::BranchOutcome i_fb_prediction_gshare,
 	input mips_core_pkg::BranchOutcome i_fb_prediction_2bit,
 	input mips_core_pkg::BranchOutcome i_fb_outcome
 );
 
-	localparam BHT_ENTRIES = 1 << `G_HISTORY_BITS;
+	localparam BHT_ENTRIES = 1 << G_HISTORY_BITS;
 
 	enum logic [1:0] {SN = 0, WN = 1, WT = 2, ST = 3} TAKEN_COUNTER;
 	enum logic [1:0] {SG = 0, WG = 1, W2 = 2, S2 = 3} GSHARE_VS_2BIT_COUNTER;
 	logic [1:0] bht_chooser [BHT_ENTRIES - 1 : 0];
 	logic [1:0] bht_gshare [BHT_ENTRIES - 1 : 0];
-	logic [`G_HISTORY_BITS - 1 : 0] ghistory;
-	logic [`G_HISTORY_BITS - 1 : 0] predict_index_gshare;
-	logic [`G_HISTORY_BITS - 1 : 0] predict_index_chooser;
-	logic [`G_HISTORY_BITS - 1 : 0] feedback_index_gshare;
-	logic [`G_HISTORY_BITS - 1 : 0] feedback_index_chooser;
+	logic [G_HISTORY_BITS - 1 : 0] ghistory;
+	logic [G_HISTORY_BITS - 1 : 0] predict_index_gshare;
+	logic [G_HISTORY_BITS - 1 : 0] predict_index_chooser;
+	logic [G_HISTORY_BITS - 1 : 0] feedback_index_gshare;
+	logic [G_HISTORY_BITS - 1 : 0] feedback_index_chooser;
 	logic [1:0] counter;
 	logic gshare_pred;
 	logic two_bit_local_pred;
@@ -107,8 +107,8 @@ module branch_predictor_tournament (
 
 	always_comb
 	begin
-		predict_index_gshare = i_req_pc[`G_HISTORY_BITS - 1 : 0] ^ ghistory;
-		feedback_index_gshare = i_fb_pc[`G_HISTORY_BITS - 1 : 0] ^ i_fb_ghistory;	
+		predict_index_gshare = i_req_pc[G_HISTORY_BITS - 1 : 0] ^ ghistory;
+		feedback_index_gshare = i_fb_pc[G_HISTORY_BITS - 1 : 0] ^ i_fb_ghistory;	
 		gshare_correct = i_fb_outcome == i_fb_prediction_gshare;
 		ghistory_flush = i_fb_valid & ~(i_fb_prediction == i_fb_outcome);
 
@@ -126,8 +126,8 @@ module branch_predictor_tournament (
 		
 		two_bit_local_pred = counter[1] ? TAKEN : NOT_TAKEN;
 		
-		predict_index_chooser = i_req_pc[`G_HISTORY_BITS - 1 : 0] ^ ghistory;
-		feedback_index_chooser = i_fb_pc[`G_HISTORY_BITS - 1 : 0] ^ i_fb_ghistory;	
+		predict_index_chooser = i_req_pc[G_HISTORY_BITS - 1 : 0] ^ ghistory;
+		feedback_index_chooser = i_fb_pc[G_HISTORY_BITS - 1 : 0] ^ i_fb_ghistory;	
 		
 		case(bht_chooser[predict_index_chooser])
 			SG, WG:
@@ -155,9 +155,9 @@ module branch_predictor_tournament (
 			ghistory <= '0;
 		end else  begin
 			if(ghistory_flush) begin
-				ghistory <= {i_fb_ghistory[`G_HISTORY_BITS - 2 : 0], i_fb_outcome};
+				ghistory <= {i_fb_ghistory[G_HISTORY_BITS - 2 : 0], i_fb_outcome};
 			end else if(i_req_valid) begin
-				ghistory <= {ghistory[`G_HISTORY_BITS - 2 : 0], chooser_pred};
+				ghistory <= {ghistory[G_HISTORY_BITS - 2 : 0], chooser_pred};
 			end else begin
 				ghistory <= ghistory;
 			end

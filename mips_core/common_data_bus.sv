@@ -11,8 +11,8 @@ module common_data_bus (
 	always_comb begin
 		mem_valid 							= mem_input.valid & (mem_input.mem_action == READ) & mem_output.valid;
 		cdb_output.valid 					= (mem_valid) | alu_output.valid;
-		{cdb_output.tag, cdb_output.data} 	= (mem_valid) ? {mem_output.tag, mem_output.mem_data} :
-											(alu_output.valid) ? {alU_output.tag, alu_output.result} : '0;
+		{cdb_output.tag, cdb_output.data} 	= (mem_valid) ? {mem_output.tag, mem_output.data} :
+											(alu_output.valid) ? {alu_output.tag, alu_output.result} : '0;
 	end
 
 endmodule

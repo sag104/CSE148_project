@@ -1,4 +1,4 @@
-`include "mips_core.svh"
+import mips_core_pkg::*;
 
 `ifdef SIMULATION
 import "DPI-C" function void pc_event (input int pc);
@@ -17,13 +17,13 @@ module mips_core (
 	output AWVALID,
 	output [3:0] AWID,
 	output [3:0] AWLEN,
-	output [`ADDR_WIDTH - 1 : 0] AWADDR,
+	output [ADDR_WIDTH - 1 : 0] AWADDR,
 
 	input WREADY,
 	output WVALID,
 	output WLAST,
 	output [3:0] WID,
-	output [`DATA_WIDTH - 1 : 0] WDATA,
+	output [DATA_WIDTH - 1 : 0] WDATA,
 
 	output BREADY,
 	input BVALID,
@@ -33,13 +33,13 @@ module mips_core (
 	output ARVALID,
 	output [3:0] ARID,
 	output [3:0] ARLEN,
-	output [`ADDR_WIDTH - 1 : 0] ARADDR,
+	output [ADDR_WIDTH - 1 : 0] ARADDR,
 
 	output RREADY,
 	input RVALID,
 	input RLAST,
 	input [3:0] RID,
-	input [`DATA_WIDTH - 1 : 0] RDATA
+	input [DATA_WIDTH - 1 : 0] RDATA
 );
 
     //Interfaces sorted by where they output from
@@ -161,7 +161,7 @@ module mips_core (
         .phy_reg_output(phy_reg_output),
         .d_hc(d_hc),
         .rob_st_hc(rob_st_hc),
-        .mispredict_hc(mispredict_hc),
+        .branch_pred_hc(branch_pred_hc),
         .cdb_output(cdb_output),
         .st_data_output(st_data_output),
 

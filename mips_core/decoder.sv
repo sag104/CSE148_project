@@ -9,7 +9,7 @@
  * See wiki page "Handle Register Zero" for deatils about instructions reading
  * from or writing to register zero.
  */
-`include "mips_core.svh"
+import mips_core_pkg::*;
 
 module decoder (
 	inst_q_output_ifc.in i_inst,
@@ -263,7 +263,7 @@ module decoder (
 						6'h18:  // mul
 						begin
 						`ifdef SIMULTION
-							$error("%m (%t) mul not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+							$error("%m (%t) mul not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 						`endif
 							out.valid = 1'b0;
 						end
@@ -271,7 +271,7 @@ module decoder (
 						6'h19:  //mulu
 						begin
 						`ifdef SIMULTION
-							$error("%m (%t) mulu not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+							$error("%m (%t) mulu not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 						`endif
 							out.valid = 1'b0;
 						end
@@ -279,7 +279,7 @@ module decoder (
 						6'h1a:  //div
 						begin
 						`ifdef SIMULTION
-							$error("%m (%t) div not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+							$error("%m (%t) div not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 						`endif
 							out.valid = 1'b0;
 						end
@@ -287,7 +287,7 @@ module decoder (
 						6'h1b:  //divu
 						begin
 						`ifdef SIMULTION
-							$error("%m (%t) divu not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+							$error("%m (%t) divu not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 						`endif
 							out.valid = 1'b0;
 						end
@@ -295,7 +295,7 @@ module decoder (
 						default:
 						begin
 						`ifdef SIMULTION
-							$error("%m (%t) unknown R-type funct code %b. Treated as a NOP. PC=0x%x", $time, i_inst.data[5:0], i_inst.pc);
+							$error("%m (%t) unknown R-type funct code %b. Treated as a NOP. PC=0x%x", $time, i_inst.data[5:0], i_pc.pc);
 						`endif
 							out.valid = 1'b0;
 						end
@@ -358,7 +358,7 @@ module decoder (
 					rt();
 					out.is_branch_jump = 1'b1;
 					out.is_branch = 1'b1;
-					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
+					out.branch_target = i_inst.pc + 4 + ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
 				6'h05:  //bne
@@ -368,7 +368,7 @@ module decoder (
 					rt();
 					out.is_branch_jump = 1'b1;
 					out.is_branch = 1'b1;
-					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
+					out.branch_target = i_inst.pc + 4 + ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
 				6'h06:  //blez
@@ -378,7 +378,7 @@ module decoder (
 					rt();
 					out.is_branch_jump = 1'b1;
 					out.is_branch = 1'b1;
-					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
+					out.branch_target = i_inst.pc + 4 + ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
 				6'h01:  //bgez or bltz
@@ -391,7 +391,7 @@ module decoder (
 					rt();
 					out.is_branch_jump = 1'b1;
 					out.is_branch = 1'b1;
-					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
+					out.branch_target = i_inst.pc + 4 + ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
 				6'h07:  //bgtz
@@ -401,7 +401,7 @@ module decoder (
 					rt();
 					out.is_branch_jump = 1'b1;
 					out.is_branch = 1'b1;
-					out.branch_target = i_inst.pc + `ADDR_WIDTH'd4 + `ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
+					out.branch_target = i_inst.pc + 4 + ADDR_WIDTH'(signed'(i_inst.data[15:0]) << 2);
 				end
 
 				6'h02:  // j
@@ -409,7 +409,7 @@ module decoder (
 					out.alu_ctl = ALUCTL_NOP;	// jr does not use alu
 					out.is_branch_jump = 1'b1;
 					out.is_jump = 1'b1;
-					out.branch_target = {i_inst.data[`ADDR_WIDTH - 3: 0], 2'b00};
+					out.branch_target = {i_inst.data[ADDR_WIDTH - 3: 0], 2'b00};
 				end
 
 				6'h03:  // jal
@@ -419,13 +419,13 @@ module decoder (
 					immediate_raw(32'(unsigned'(i_inst.pc)) + 8);
 					out.is_branch_jump = 1'b1;
 					out.is_jump = 1'b1;
-					out.branch_target = {i_inst.data[`ADDR_WIDTH - 3: 0], 2'b00};
+					out.branch_target = {i_inst.data[ADDR_WIDTH - 3: 0], 2'b00};
 				end
 
 				6'h20: //lb
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) lb not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+					$error("%m (%t) lb not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end
@@ -433,7 +433,7 @@ module decoder (
 				6'h24: //lbu
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) lbu not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+					$error("%m (%t) lbu not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end
@@ -441,7 +441,7 @@ module decoder (
 				6'h21: //lh
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) lh not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+					$error("%m (%t) lh not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end
@@ -449,7 +449,7 @@ module decoder (
 				6'h25: //lhu
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) lhu not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+					$error("%m (%t) lhu not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end
@@ -465,7 +465,7 @@ module decoder (
 				6'h28:  //sb
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) sb not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+					$error("%m (%t) sb not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end
@@ -473,7 +473,7 @@ module decoder (
 				6'h29:  //sh
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) sh not supported. Treated as a NOP. PC=0x%x", $time, i_inst.pc);
+					$error("%m (%t) sh not supported. Treated as a NOP. PC=0x%x", $time, i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end
@@ -512,7 +512,7 @@ module decoder (
 						default:
 						begin
 						`ifdef SIMULTION
-							$error("%m (%t) unknown MTC0 value 0x%x. Treated as a NOP. PC=0x%x", $time, i_inst.data[15:11], i_inst.pc);
+							$error("%m (%t) unknown MTC0 value 0x%x. Treated as a NOP. PC=0x%x", $time, i_inst.data[15:11], i_pc.pc);
 						`endif
 							out.valid = 1'b0;
 						end
@@ -522,7 +522,7 @@ module decoder (
 				default:
 				begin
 				`ifdef SIMULTION
-					$error("%m (%t) unknown opcode %b. Treated as a NOP. PC=0x%x", $time, i_inst.data[31:26], i_inst.pc);
+					$error("%m (%t) unknown opcode %b. Treated as a NOP. PC=0x%x", $time, i_inst.data[31:26], i_pc.pc);
 				`endif
 					out.valid = 1'b0;
 				end

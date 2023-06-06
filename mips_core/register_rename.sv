@@ -8,28 +8,21 @@ module register_rename (
 
         register_rename_ifc.out phy_reg_output
 );
-
-    struct {
-        logic [4:0] [5:0] log_res ;
-        logic [5:0] free_reg ;
-        logic [5:0] [`ROB_DEPTH_BITS : 0] reg_phy_rob_tag;   
-        logic [5:0] reg_ready;  
-    } checkpoint;
-
-    checkpoint checkpoint_buffer[`CHECKPOINT_BUFFER_DEPTH];
-    logic [`CHECKPOINT_BUFFER_DEPTH_BITS - 1 : 0] ch_wr_ptr, ch_rd_ptr;
+    
+    checkpoint checkpoint_buffer[CHECKPOINT_BUFFER_DEPTH];
+    logic [CHECKPOINT_BUFFER_DEPTH_BITS - 1 : 0] ch_wr_ptr, ch_rd_ptr;
     
     logic [4:0] [5:0] log_res ;  //maps the 32 logical registers to 64 physical registers
     logic [5:0] free_reg ;       // list of physical registers that are free to be remapped
-    logic [5:0] [`ROB_DEPTH_BITS : 0] reg_phy_rob_tag;   
+    logic [5:0] [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag;   
     logic [5:0] reg_ready;      //list of registers that have final value committed
     logic [5:0] free_phy_reg;
     logic avail_reg;
 
     function automatic logic [6:0] first_free_phy_reg();
-        for (logic[5:0] g = 0; g < 64; g++) begin
-            if(free_reg[g]) begin
-                return {1'b1, g};
+        for (logic[31:0] g = 0; g < 64; g++) begin
+            if(free_reg[g[5:0]]) begin
+                return {1'b1, g[5:0]};
             end
         end
         return '0;
@@ -53,7 +46,7 @@ module register_rename (
         if(!rst_n) begin
             reg_ready <= '1;
 
-            for (logic[4:0] i = 0; i < 32; i++) begin
+            for (int i = 0; i < 32; i++) begin
                 log_res[i] <= i;
             end
 
@@ -74,7 +67,7 @@ module register_rename (
                 reg_ready <= checkpoint_buffer[ch_rd_ptr].reg_ready;
                 ch_wr_ptr <= 0;
                 ch_rd_ptr <= 0;
-                checkpoint_buffer <= '0;
+                checkpoint_buffer <= '{default:0};
             end else begin
                 if(!d_hc.stall) begin
                     if(avail_reg) begin
@@ -82,7 +75,6 @@ module register_rename (
                             log_res[decoder_output.rw_addr] <= free_phy_reg; 
                             reg_ready[free_phy_reg] <= 0;
                             free_reg[free_phy_reg] <= 0;
-                            active_reg[active_wr_ptr] <= log_res[decoder_output.rw_addr];
                             reg_phy_rob_tag[free_phy_reg] <= rob_status.tag;
                         end
 
@@ -97,7 +89,7 @@ module register_rename (
                 end
 
                 if(rob_reg_wr.reg_wr_en) begin
-                    reg_ready[rob_rename.rob_commit_reg] <= 1;
+                    reg_ready[rob_reg_wr.reg_wr_addr] <= 1;
                 end
 
                 if(branch_pred_hc.correct_pred) begin

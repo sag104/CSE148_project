@@ -1,3 +1,5 @@
+import mips_core_pkg::*;
+
 module mem_reservation_station (
     input clk,
     input rst_n,
@@ -15,25 +17,10 @@ module mem_reservation_station (
     d_cache_input_ifc.out d_cache_input
 );
 
-    struct {
-        logic [`ROB_DEPTH_BITS - 1 : 0] tag;
-        mips_core_pkg::MemAccessType mem_action;
-        logic [31:0] addr;
-        logic [31:0] offset;
-        logic [ROB_DEPTH_BITS : 0] q_reg_addr;
-        logic [31:0] v_reg_val;
-        logic [ROB_DEPTH_BITS : 0] q_reg_val;
-    } entry;
+    mem_res_stat_entry mem_add_table [MEM_RES_STAT_DEPTH];
 
-    struct {
-        logic valid;
-        logic [31:0] addr;
-    } store_address;
-
-    entry mem_add_table [`MEM_RES_STAT_DEPTH];
-
-    store_address store_queue [`ROB_DEPTH];
-    logic [`ROB_DEPTH_BITS - 1 : 0] sq_wr_ptr, sq_rd_ptr;
+    store_address store_queue [ROB_DEPTH];
+    logic [ROB_DEPTH_BITS - 1 : 0] sq_wr_ptr, sq_rd_ptr;
 
     logic [MEM_RES_STAT_DEPTH_BITS : 0] wr_ptr;
     logic [MEM_RES_STAT_DEPTH_BITS : 0] rd_ptr;
@@ -43,16 +30,16 @@ module mem_reservation_station (
 
     logic mem_input_valid_reg;
     mips_core_pkg::MemAccessType mem_action_reg;
-	logic [`ADDR_WIDTH - 1 : 0] addr_reg;
-	logic [`ADDR_WIDTH - 1 : 0] addr_next_reg;
-	logic [`DATA_WIDTH - 1 : 0] data_reg;
-    logic [`ROB_DEPTH_BITS - 1 : 0] tag_reg;
+	logic [ADDR_WIDTH - 1 : 0] addr_reg;
+	logic [ADDR_WIDTH - 1 : 0] addr_next_reg;
+	logic [DATA_WIDTH - 1 : 0] data_reg;
+    logic [ROB_DEPTH_BITS - 1 : 0] tag_reg;
 
-    function automatic logic address_match(logic [`ADDR_WIDTH - 1 : 0] compare_addr);
+    function automatic logic address_match(logic [ADDR_WIDTH - 1 : 0] compare_addr);
         integer i;
         for(i = 0; i < ROB_DEPTH; i++) begin
             if(store_queue[i].valid) begin
-                if(compare_addr == store_queue[i].addr) begin
+                if(compare_addr == store_queue[i].addr[ADDR_WIDTH - 1 : 0]) begin
                     return 1;
                 end
             end 
@@ -143,7 +130,7 @@ module mem_reservation_station (
                 rd_ptr <= 0;
             end else begin
                 if(!m_hc.stall & decoder_output.valid & decoder_output.is_mem_access) begin
-                    mem_add_table[wr_ptr].value <= 1;
+                    mem_add_table[wr_ptr].tag <= rob_status.tag;
                     mem_add_table[wr_ptr].mem_action <= decoder_output.mem_action;
                     mem_add_table[wr_ptr].offset <= decoder_output.immediate;
 
@@ -180,11 +167,11 @@ module mem_reservation_station (
                     for (int a = 0; a < MEM_RES_STAT_DEPTH; a++) begin
                         if (mem_add_table[a].q_reg_addr == {1'b1, cdb_output.tag}) begin
                             mem_add_table[a].q_reg_addr <= 0;
-                            mem_add_table[a].addr <= mem_add_table[a].offset + cdb_output.value;
+                            mem_add_table[a].addr <= mem_add_table[a].offset + cdb_output.data;
                         end
                         if (mem_add_table[a].q_reg_val == {1'b1, cdb_output.tag}) begin
                             mem_add_table[a].q_reg_val <= 0;
-                            mem_add_table[a].v_reg_val <= cdb_output.value;
+                            mem_add_table[a].v_reg_val <= cdb_output.data;
                         end
                     end
                 end

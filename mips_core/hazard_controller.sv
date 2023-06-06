@@ -13,13 +13,13 @@ module hazard_controller (
     rob_branch_commit_ifc.in rob_branch_commit,
     rob_jump_reg_commit_ifc.in rob_jump_reg_commit,
     
-    hazard_control_ifc.in i_hc,
-    hazard_control_ifc.in d_hc,
-    hazard_control_ifc.in rob_st_hc,
-    hazard_control_ifc.in e_hc,
-    hazard_control_ifc.in m_hc,
-    branch_pred_hc_ifc.in branch_pred_hc,
-    load_pc_ifc.in i_load_pc
+    hazard_control_ifc.out i_hc,
+    hazard_control_ifc.out d_hc,
+    hazard_control_ifc.out rob_st_hc,
+    hazard_control_ifc.out e_hc,
+    hazard_control_ifc.out m_hc,
+    branch_pred_hc_ifc.out branch_pred_hc,
+    load_pc_ifc.out i_load_pc
 );
 
     enum logic {NO_JR = 0, WAIT_FOR_TARGET = 1} JR_STATE_LOGIC;
@@ -37,12 +37,12 @@ module hazard_controller (
 
     branch_pred_storage branch_pred_output;
 
-    branch_pred_info bp_buffer [`ROB_DEPTH];
-    logic [`ROB_DEPTH_BITS - 1 : 0] bp_wr_ptr, bp_rd_ptr;
+    branch_pred_storage bp_buffer [ROB_DEPTH];
+    logic [ROB_DEPTH_BITS - 1 : 0] bp_wr_ptr, bp_rd_ptr;
 
     logic ic_miss;
 	logic dec_overload;		// Branch predict taken or Jump
-    logic jump_reg_target_overload;
+    logic jr_overload;
 	logic ex_overload;		// Branch prediction wrong
 	logic dc_miss;			// D cache miss
     logic inst_q_full;
@@ -51,29 +51,33 @@ module hazard_controller (
     logic mem_res_full;
     logic ld_ready_st_stall;
 
+    logic req_valid;
+
     logic jr_stall;
     logic jr_state;
 
     // Control signals
 	logic if_stall, if_flush;
 	logic dec_stall, dec_flush;
-    logic mispredict_flush;
 	logic ex_stall, ex_flush;
 	logic mem_stall, mem_flush;
+    logic branch_hit;
 
     // Determine if we have these hazards
 	always_comb begin
-		ic_miss = ~if_i_cache_output.valid;
+		ic_miss = ~i_cache_output.valid;
 		dec_overload = decoder_output.valid
 			& ( (decoder_output.is_jump & !decoder_output.is_jump_reg)
 				| (decoder_output.is_branch & branch_pred_output.prediction == TAKEN));
         jr_overload = rob_jump_reg_commit.valid_jump_reg;
         ex_overload = rob_branch_commit.valid_branch
-            & (branch_pred_hist.prediction != rob_branch_commit.branch_outcome);
+            & (bp_buffer[bp_rd_ptr].prediction != rob_branch_commit.branch_outcome);
 		branch_hit = rob_branch_commit.valid_branch
-            & (branch_pred_hist.prediction == rob_branch_commit.branch_outcome);
+            & (bp_buffer[bp_rd_ptr].prediction == rob_branch_commit.branch_outcome);
 		// lw_hazard is determined by forward unit.
 		dc_miss = d_cache_input.valid & !d_cache_output.valid;
+
+        req_valid = !d_hc.stall & decoder_output.is_branch;
 
         i_hc.stall = ic_miss | inst_q_output.full;
         d_hc.stall = rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full | jr_stall;
@@ -83,15 +87,15 @@ module hazard_controller (
         e_hc.stall = d_cache_input.valid & d_cache_output.valid & (d_cache_input.mem_action == READ);
         m_hc.stall = dc_miss;
 
-        load_pc.we = dec_overload | ex_overload | jr_overload;
+        i_load_pc.we = dec_overload | ex_overload | jr_overload;
 		if (dec_overload) begin 
-			load_pc.new_pc = decoder_output.branch_target;
+			i_load_pc.new_pc = decoder_output.branch_target;
         end else if(ex_overload) begin
-			load_pc.new_pc = branch_pred_hist.recovery_target;
+			i_load_pc.new_pc = bp_buffer[bp_rd_ptr].recovery_target;
         end else if(jr_overload) begin
-            load_pc.new_pc = rob_jump_reg_commit.jump_target;
+            i_load_pc.new_pc = rob_jump_reg_commit.jump_target;
         end else begin
-            load_pc.new_pc = 0;
+            i_load_pc.new_pc = 0;
         end
 	end
 
@@ -108,6 +112,7 @@ module hazard_controller (
                 bp_buffer[bp_wr_ptr].prediction <= branch_pred_output.prediction;
                 bp_buffer[bp_wr_ptr].prediction_gshare <= branch_pred_output.prediction_gshare;
                 bp_buffer[bp_wr_ptr].prediction_2bit <= branch_pred_output.prediction_2bit;
+                bp_buffer[bp_wr_ptr].recovery_target <= branch_pred_output.recovery_target;
             end
 
             if(rob_branch_commit.valid_branch) begin

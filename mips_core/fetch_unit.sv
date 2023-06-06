@@ -17,7 +17,7 @@ module fetch_unit (
         end else begin
             o_pc_next.pc = i_load_pc.we
 				? i_load_pc.new_pc
-				: o_pc_current.pc + `ADDR_WIDTH'd4;
+				: o_pc_current.pc + 4;
         end
     end
 
