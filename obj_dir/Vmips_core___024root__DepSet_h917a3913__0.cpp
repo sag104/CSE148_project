@@ -682,72 +682,80 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
     IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6;
     CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9;
-    CData/*1:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10;
+    CData/*1:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13;
-    CData/*1:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14;
+    CData/*1:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17;
-    CData/*1:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17;
+    CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18;
+    CData/*1:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25;
-    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25;
+    IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26;
+    IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v0;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v0;
     CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v0;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v1;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v1;
     IData/*31:0*/ __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v1;
+    CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27;
+    IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27;
+    CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28;
+    IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v2;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v2;
     CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v2;
     CData/*0:0*/ __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v3;
     IData/*31:0*/ __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v3;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26;
-    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v29;
+    CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v30;
     CData/*0:0*/ __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v4;
     IData/*31:0*/ __Vdlyvval__mips_core__DOT__D_CACHE__DOT__shift_rdata__v0;
     CData/*0:0*/ __Vdlyvset__mips_core__DOT__D_CACHE__DOT__shift_rdata__v0;
@@ -840,9 +848,6 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
     __Vdlyvset__mips_core__DOT__I_CACHE__DOT__victim_cache__DOT__tag__v2 = 0U;
     __Vdlyvset__mips_core__DOT__I_CACHE__DOT__victim_cache__DOT__tag__v3 = 0U;
     __Vdlyvset__mips_core__DOT__I_CACHE__DOT__victim_cache__DOT__tag__v4 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v0 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v2 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v4 = 0U;
     __Vdlyvset__mips_core__DOT__REGISTER_RENAME__DOT__log_res__v0 = 0U;
     __Vdlyvset__mips_core__DOT__REGISTER_RENAME__DOT__log_res__v32 = 0U;
     __Vdlyvset__mips_core__DOT__REGISTER_RENAME__DOT__log_res__v33 = 0U;
@@ -852,6 +857,9 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
     __Vdlyvset__mips_core__DOT__INSTRUCTION_QUEUE__DOT__inst_queue__v2 = 0U;
     __Vdlyvset__mips_core__DOT__INSTRUCTION_QUEUE__DOT__inst_queue__v4 = 0U;
     __Vdlyvset__mips_core__DOT__INSTRUCTION_QUEUE__DOT__inst_queue__v5 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v0 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v2 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v4 = 0U;
     __Vdlyvset__mips_core__DOT__REORDER_BUFFER__DOT__fifo__v0 = 0U;
     __Vdlyvset__mips_core__DOT__REORDER_BUFFER__DOT__fifo__v1 = 0U;
     __Vdlyvset__mips_core__DOT__REORDER_BUFFER__DOT__fifo__v2 = 0U;
@@ -1075,19 +1083,21 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
     __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v0 = 0U;
     __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v1 = 0U;
     __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v2 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 = 0U;
     __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24 = 0U;
-    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25 = 0U;
     __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v29 = 0U;
+    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v30 = 0U;
     __Vdlyvset__mips_core__DOT__REGISTER_RENAME__DOT__checkpoint_buffer__v0 = 0U;
     __Vdlyvset__mips_core__DOT__REGISTER_RENAME__DOT__checkpoint_buffer__v2 = 0U;
     __Vdlyvset__mips_core__DOT__REGISTER_RENAME__DOT__checkpoint_buffer__v3 = 0U;
@@ -2430,75 +2440,78 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
                 __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4 = 0x24U;
                 __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4 
                     = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
+                __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 = 0x66U;
+                __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 
+                    = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
                 if (vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action) {
-                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 = 1U;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 = 0U;
-                    __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 
+                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 = 1U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 = 0U;
+                    __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 
                         = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
                     if (vlSymsp->TOP__mips_core__DOT__phy_reg_output.rs_ready) {
-                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 
+                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7 
                             = (vlSymsp->TOP__mips_core__DOT__decoder_output.immediate 
                                + vlSymsp->TOP__mips_core__DOT__reg_file_data.rs_data);
-                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 = 1U;
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 = 0x44U;
-                        __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6 
-                            = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7 = 0x22U;
+                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7 = 1U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7 = 0x44U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                    } else {
-                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8 = 1U;
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8 = 0x44U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8 = 0x22U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9 
-                            = (2U | (IData)(vlSymsp->TOP__mips_core__DOT__phy_reg_output.rs_tag));
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9 = 0x22U;
+                    } else {
+                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9 = 1U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9 = 0x44U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9 
+                            = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
+                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 
+                            = (2U | (IData)(vlSymsp->TOP__mips_core__DOT__phy_reg_output.rs_tag));
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 = 0x22U;
+                        __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
                     }
                 } else {
                     if (vlSymsp->TOP__mips_core__DOT__phy_reg_output.rs_ready) {
-                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 
+                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11 
                             = vlSymsp->TOP__mips_core__DOT__reg_file_data.rs_data;
-                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 = 1U;
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 = 2U;
-                        __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10 
-                            = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11 = 0U;
+                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11 = 1U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11 = 2U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                    } else {
-                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12 = 1U;
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12 = 2U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12 = 0U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13 
-                            = (2U | (IData)(vlSymsp->TOP__mips_core__DOT__phy_reg_output.rs_tag));
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13 = 0U;
+                    } else {
+                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13 = 1U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13 = 2U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13 
+                            = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
+                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 
+                            = (2U | (IData)(vlSymsp->TOP__mips_core__DOT__phy_reg_output.rs_tag));
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 = 0U;
+                        __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
                     }
                     if (vlSymsp->TOP__mips_core__DOT__phy_reg_output.rt_ready) {
-                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 
+                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15 
                             = (vlSymsp->TOP__mips_core__DOT__decoder_output.immediate 
                                + vlSymsp->TOP__mips_core__DOT__reg_file_data.rt_data);
-                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 = 1U;
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 = 0x44U;
-                        __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14 
-                            = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15 = 0x22U;
+                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15 = 1U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15 = 0x44U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                    } else {
-                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16 = 1U;
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16 = 0x44U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16 = 0x22U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
-                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17 
-                            = (2U | (IData)(vlSymsp->TOP__mips_core__DOT__phy_reg_output.rt_tag));
-                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17 = 0x22U;
+                    } else {
+                        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17 = 1U;
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17 = 0x44U;
                         __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17 
+                            = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
+                        __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18 
+                            = (2U | (IData)(vlSymsp->TOP__mips_core__DOT__phy_reg_output.rt_tag));
+                        __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18 = 0x22U;
+                        __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18 
                             = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr));
                     }
                 }
@@ -2509,46 +2522,46 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
                 if (((3U & (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                             [0U][1U] >> 2U)) == (2U 
                                                  | (IData)(vlSymsp->TOP__mips_core__DOT__cdb_output.tag)))) {
-                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18 = 1U;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18 = 0x22U;
-                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19 
+                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19 = 1U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19 = 0x22U;
+                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20 
                         = (((vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                              [0U][2U] << 0x1cU) | (
                                                    vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                                                    [0U][1U] 
                                                    >> 4U)) 
                            + vlSymsp->TOP__mips_core__DOT__cdb_output.data);
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19 = 0x44U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20 = 0x44U;
                 }
                 if (((3U & vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                       [0U][0U]) == (2U | (IData)(vlSymsp->TOP__mips_core__DOT__cdb_output.tag)))) {
-                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20 = 1U;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20 = 0U;
-                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21 
+                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21 = 1U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21 = 0U;
+                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22 
                         = vlSymsp->TOP__mips_core__DOT__cdb_output.data;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21 = 2U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22 = 2U;
                 }
                 if (((3U & (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                             [1U][1U] >> 2U)) == (2U 
                                                  | (IData)(vlSymsp->TOP__mips_core__DOT__cdb_output.tag)))) {
-                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22 = 1U;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22 = 0x22U;
-                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23 
+                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23 = 1U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23 = 0x22U;
+                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24 
                         = (((vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                              [1U][2U] << 0x1cU) | (
                                                    vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                                                    [1U][1U] 
                                                    >> 4U)) 
                            + vlSymsp->TOP__mips_core__DOT__cdb_output.data);
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23 = 0x44U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24 = 0x44U;
                 }
                 if (((3U & vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                       [1U][0U]) == (2U | (IData)(vlSymsp->TOP__mips_core__DOT__cdb_output.tag)))) {
-                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24 = 1U;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24 = 0U;
-                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25 
+                    __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25 = 1U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25 = 0U;
+                    __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26 
                         = vlSymsp->TOP__mips_core__DOT__cdb_output.data;
-                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25 = 2U;
+                    __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26 = 2U;
                 }
             }
             if (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__st_ready) {
@@ -2567,10 +2580,18 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
                     = vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__sq_wr_ptr;
                 __Vdly__mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr 
                     = (3U & ((IData)(1U) + (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr)));
+                __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 = 1U;
+                __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 = 0x66U;
+                __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 
+                    = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr));
             } else if (((IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__ld_ready) 
                         & (~ (IData)(vlSymsp->TOP__mips_core__DOT__m_hc.stall)))) {
                 __Vdly__mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr 
                     = (3U & ((IData)(1U) + (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr)));
+                __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28 = 1U;
+                __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28 = 0x66U;
+                __Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28 
+                    = (1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr));
             }
             if (vlSymsp->TOP__mips_core__DOT__rob_mem_wr.mem_wr_en) {
                 __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v2 = 1U;
@@ -3434,9 +3455,9 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
         __Vdly__mips_core__DOT__REORDER_BUFFER__DOT__rd_ptr = 0U;
         __Vdlyvset__mips_core__DOT__I_CACHE__DOT__victim_cache__DOT__tag__v4 = 1U;
         __Vdlyvset__mips_core__DOT__ALU_RESERVATION_STATION__DOT__reserv_stat_table__v24 = 1U;
-        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26 = 1U;
+        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v29 = 1U;
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__sq_rd_ptr = 0U;
-        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 = 1U;
+        __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v30 = 1U;
         __Vdly__mips_core__DOT__MEM_RESERVATION_STATION__DOT__wr_ptr = 0U;
         __Vdly__mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr = 0U;
         __Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue__v4 = 1U;
@@ -4058,102 +4079,126 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
                 (__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v3 
                  >> 5U)]) | ((IData)(__Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v3) 
                              << (0x1fU & __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v3)));
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4, 
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v4);
-    }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5) {
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5], 0U);
+        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5][(__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 
+                                                                                >> 5U)] 
+            = (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+               [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5][
+               (__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5 
+                >> 5U)] | ((IData)(1U) << (0x1fU & __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v5)));
     }
     if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6) {
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6, 
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6);
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7], 0U);
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v6], 0U);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8) {
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7) {
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v7);
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v8], 0U);
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10) {
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9) {
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v9], 0U);
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v10);
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11], 0U);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12) {
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11) {
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v11);
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v12], 0U);
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14) {
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13) {
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v13], 0U);
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v14);
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15], 0U);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16) {
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15) {
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v15);
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v16], 0U);
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17, 
-                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18) {
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17) {
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v17], 0U);
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18, 
+                        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                        [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v18);
+    }
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19) {
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [0U], 0U);
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19, 
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [0U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v19);
+                        [0U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20) {
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v20, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21) {
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [0U], 0U);
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21, 
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [0U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v21);
+                        [0U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22) {
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v22, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23) {
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [1U], 0U);
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23, 
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [1U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v23);
+                        [1U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24) {
-        VL_ASSIGNSEL_WI(102,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v24, 
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25) {
+        VL_ASSIGNSEL_WI(103,2,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                         [1U], 0U);
-        VL_ASSIGNSEL_WI(102,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25, 
+        VL_ASSIGNSEL_WI(103,32,__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26, 
                         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                        [1U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v25);
+                        [1U], __Vdlyvval__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26);
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v26) {
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27) {
+        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27][(__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 
+                                                                                >> 5U)] 
+            = ((~ ((IData)(1U) << (0x1fU & __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27))) 
+               & vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+               [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27][
+               (__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27 
+                >> 5U)]);
+    }
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28) {
+        vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28][(__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28 
+                                                                                >> 5U)] 
+            = ((~ ((IData)(1U) << (0x1fU & __Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28))) 
+               & vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+               [__Vdlyvdim0__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28][
+               (__Vdlyvlsb__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v28 
+                >> 5U)]);
+    }
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v29) {
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[0U][0U] = 0U;
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[0U][1U] = 0U;
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[0U][2U] = 0U;
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[0U][3U] = 0U;
     }
-    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v27) {
+    if (__Vdlyvset__mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table__v30) {
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[1U][0U] = 0U;
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[1U][1U] = 0U;
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[1U][2U] = 0U;
@@ -5665,9 +5710,11 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
                      >> 1U)) != (1U & ((IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr) 
                                        >> 1U))));
     vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__ready 
-        = (1U & ((~ (IData)((0U != (3U & (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                                          [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][1U] 
-                                          >> 2U))))) 
+        = (1U & ((vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                  [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][0U] 
+                  & (~ (IData)((0U != (3U & (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                                             [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][1U] 
+                                             >> 2U)))))) 
                  & (~ (IData)((0U != (3U & vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                                       [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][0U]))))));
     vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__st_ready 
@@ -5753,6 +5800,13 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
     vlSelf->mips_core__DOT__HAZARD_CONTROLLER__DOT__BRANCH_CONTROLLER__DOT__PREDICTOR__DOT__predict_index_chooser 
         = (0xfffU & (vlSymsp->TOP__mips_core__DOT__inst_q_output.pc 
                      ^ (IData)(vlSelf->mips_core__DOT__HAZARD_CONTROLLER__DOT__BRANCH_CONTROLLER__DOT__PREDICTOR__DOT__ghistory)));
+}
+
+VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* vlSelf) {
+    if (false && vlSelf) {}  // Prevent unused
+    Vmips_core__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vmips_core___024root___sequent__TOP__1\n"); );
+    // Body
     vlSelf->mips_core__DOT__HAZARD_CONTROLLER__DOT__BRANCH_CONTROLLER__DOT__PREDICTOR__DOT__chooser_pred 
         = ((2U & vlSelf->mips_core__DOT__HAZARD_CONTROLLER__DOT__BRANCH_CONTROLLER__DOT__PREDICTOR__DOT__bht_chooser
             [vlSelf->mips_core__DOT__HAZARD_CONTROLLER__DOT__BRANCH_CONTROLLER__DOT__PREDICTOR__DOT__predict_index_chooser])
@@ -5801,78 +5855,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__0(Vmips_core___024root* 
                         if ((0x8000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
                             if ((0x4000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-                            }
-                        }
-                    }
-                } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                     >> 0x1cU)))) {
-                    if ((0x8000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                        if ((0x4000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                            vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-                        }
-                    }
-                }
-            }
-        } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                             >> 0x1eU)))) {
-            if ((0x20000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-            } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                 >> 0x1cU)))) {
-                if ((0x8000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                    if ((0x4000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                        vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-                    }
-                } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                     >> 0x1aU)))) {
-                    if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                  >> 5U)))) {
-                        if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                      >> 4U)))) {
-                            if ((8U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                                if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                              >> 2U)))) {
-                                    if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                                  >> 1U)))) {
-                                        if ((1U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                                            vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-                                        }
-                                    }
-                                }
-                            } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                                 >> 2U)))) {
-                                if ((2U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                                    vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-                                } else if ((1U & (~ vlSymsp->TOP__mips_core__DOT__inst_q_output.data))) {
-                                    vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 0U;
-    }
-}
-
-VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* vlSelf) {
-    if (false && vlSelf) {}  // Prevent unused
-    Vmips_core__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vmips_core___024root___sequent__TOP__1\n"); );
-    // Body
-    vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
-    if (vlSymsp->TOP__mips_core__DOT__inst_q_output.valid) {
-        if ((vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-             >> 0x1fU)) {
-            if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                          >> 0x1eU)))) {
-                if ((0x20000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                    if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
-                                  >> 0x1cU)))) {
-                        if ((0x8000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
-                            if ((0x4000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                                vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 1U;
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt 
@@ -5896,6 +5879,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.immediate 
                                     = vlSelf->__Vtask_mips_core__DOT__DECODER__DOT__immediate_raw__6__immediate;
                             } else {
+                                vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -5903,6 +5887,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                                 vlSymsp->TOP__mips_core__DOT__decoder_output.immediate = 0U;
                             }
                         } else {
+                            vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -5910,6 +5895,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                             vlSymsp->TOP__mips_core__DOT__decoder_output.immediate = 0U;
                         }
                     } else {
+                        vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                         vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                         vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                         vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -5920,6 +5906,8 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                                      >> 0x1cU)))) {
                     if ((0x8000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
                         if ((0x4000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                            vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
+                            vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 1U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
@@ -5938,6 +5926,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                             vlSymsp->TOP__mips_core__DOT__decoder_output.immediate 
                                 = vlSelf->__Vtask_mips_core__DOT__DECODER__DOT__immediate_raw__12__immediate;
                         } else {
+                            vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                             vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -5945,6 +5934,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                             vlSymsp->TOP__mips_core__DOT__decoder_output.immediate = 0U;
                         }
                     } else {
+                        vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                         vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                         vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                         vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -5952,6 +5942,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                         vlSymsp->TOP__mips_core__DOT__decoder_output.immediate = 0U;
                     }
                 } else {
+                    vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                     vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                     vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                     vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -5978,6 +5969,7 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                     }
                 }
             } else {
+                vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
                 vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
                 vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;
@@ -6051,6 +6043,50 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
                 vlSymsp->TOP__mips_core__DOT__decoder_output.rs_addr = 0U;
             }
         } else {
+            if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                          >> 0x1eU)))) {
+                if ((0x20000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                    vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
+                } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                     >> 0x1cU)))) {
+                    if ((0x8000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                        if ((0x4000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                            vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
+                        }
+                    } else if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                         >> 0x1aU)))) {
+                        if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                      >> 5U)))) {
+                            if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                          >> 4U)))) {
+                                if ((8U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                                    if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                                  >> 2U)))) {
+                                        if ((1U & (~ 
+                                                   (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                                    >> 1U)))) {
+                                            if ((1U 
+                                                 & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                                                vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
+                                            }
+                                        }
+                                    }
+                                } else if ((1U & (~ 
+                                                  (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
+                                                   >> 2U)))) {
+                                    if ((2U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
+                                        vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
+                                    } else if ((1U 
+                                                & (~ vlSymsp->TOP__mips_core__DOT__inst_q_output.data))) {
+                                        vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 1U;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
             if ((0x40000000U & vlSymsp->TOP__mips_core__DOT__inst_q_output.data)) {
                 if ((1U & (~ (vlSymsp->TOP__mips_core__DOT__inst_q_output.data 
                               >> 0x1dU)))) {
@@ -7548,6 +7584,8 @@ VL_INLINE_OPT void Vmips_core___024root___sequent__TOP__1(Vmips_core___024root* 
             vlSymsp->TOP__mips_core__DOT__decoder_output.is_jump = 0U;
         }
     } else {
+        vlSymsp->TOP__mips_core__DOT__decoder_output.uses_immediate = 0U;
+        vlSymsp->TOP__mips_core__DOT__decoder_output.alu_ctl = 0U;
         vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rt = 0U;
         vlSymsp->TOP__mips_core__DOT__decoder_output.uses_rs = 0U;
         vlSymsp->TOP__mips_core__DOT__decoder_output.mem_action = 1U;

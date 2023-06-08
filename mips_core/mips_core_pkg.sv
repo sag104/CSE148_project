@@ -146,6 +146,7 @@ typedef struct packed{
 } alu_res_stat_entry;
 
 typedef struct packed{
+	logic valid;
 	logic [ROB_DEPTH_BITS - 1 : 0] tag;
 	mips_core_pkg::MemAccessType mem_action;
 	logic [31:0] addr;

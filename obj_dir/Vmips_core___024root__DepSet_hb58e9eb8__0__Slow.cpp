@@ -260,7 +260,7 @@ VL_ATTR_COLD void Vmips_core___024root___ctor_var_reset(Vmips_core___024root* vl
     vlSelf->mips_core__DOT__ALU_RESERVATION_STATION__DOT__ready_index = VL_RAND_RESET_I(1);
     vlSelf->mips_core__DOT__ALU_RESERVATION_STATION__DOT__unnamedblk3__DOT__a = 0;
     for (int __Vi0=0; __Vi0<2; ++__Vi0) {
-        VL_RAND_RESET_W(102, vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[__Vi0]);
+        VL_RAND_RESET_W(103, vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table[__Vi0]);
     }
     for (int __Vi0=0; __Vi0<2; ++__Vi0) {
         vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue[__Vi0] = VL_RAND_RESET_Q(33);

@@ -333,9 +333,11 @@ VL_ATTR_COLD void Vmips_core___024root___settle__TOP__0(Vmips_core___024root* vl
                      >> 1U)) != (1U & ((IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr) 
                                        >> 1U))));
     vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__ready 
-        = (1U & ((~ (IData)((0U != (3U & (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
-                                          [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][1U] 
-                                          >> 2U))))) 
+        = (1U & ((vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                  [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][0U] 
+                  & (~ (IData)((0U != (3U & (vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
+                                             [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][1U] 
+                                             >> 2U)))))) 
                  & (~ (IData)((0U != (3U & vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
                                       [(1U & (IData)(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__rd_ptr))][0U]))))));
     vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__st_ready 

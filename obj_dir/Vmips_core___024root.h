@@ -413,7 +413,7 @@ VL_MODULE(Vmips_core___024root) {
         VlUnpacked<VlWide<3>/*72:0*/, 2> mips_core__DOT__REORDER_BUFFER__DOT__fifo;
         VlUnpacked<IData/*31:0*/, 64> mips_core__DOT__REG_FILE__DOT__regs;
         VlUnpacked<VlWide<3>/*74:0*/, 2> mips_core__DOT__ALU_RESERVATION_STATION__DOT__reserv_stat_table;
-        VlUnpacked<VlWide<4>/*101:0*/, 2> mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table;
+        VlUnpacked<VlWide<4>/*102:0*/, 2> mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table;
         VlUnpacked<QData/*32:0*/, 2> mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue;
         VlUnpacked<IData/*31:0*/, 4> mips_core__DOT__D_CACHE__DOT__databank_rdata;
         VlUnpacked<IData/*31:0*/, 4> mips_core__DOT__D_CACHE__DOT__shift_rdata;

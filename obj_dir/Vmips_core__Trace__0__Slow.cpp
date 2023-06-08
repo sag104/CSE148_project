@@ -858,8 +858,8 @@ VL_ATTR_COLD void Vmips_core___024root__trace_init_sub__TOP__0(Vmips_core___024r
     tracep->declBit(c+570,"clk",-1,FST_VD_INPUT,FST_VT_VCD_WIRE, false,-1);
     tracep->declBit(c+571,"rst_n",-1,FST_VD_INPUT,FST_VT_VCD_WIRE, false,-1);
     tracep->pushNamePrefix("mem_add_table");
-    tracep->declArray(c+254,"[0]",-1, FST_VD_IMPLICIT,FST_VT_SV_LOGIC, false,-1, 101,0);
-    tracep->declArray(c+258,"[1]",-1, FST_VD_IMPLICIT,FST_VT_SV_LOGIC, false,-1, 101,0);
+    tracep->declArray(c+254,"[0]",-1, FST_VD_IMPLICIT,FST_VT_SV_LOGIC, false,-1, 102,0);
+    tracep->declArray(c+258,"[1]",-1, FST_VD_IMPLICIT,FST_VT_SV_LOGIC, false,-1, 102,0);
     tracep->popNamePrefix(1);
     tracep->pushNamePrefix("store_queue");
     tracep->declQuad(c+262,"[0]",-1, FST_VD_IMPLICIT,FST_VT_SV_LOGIC, false,-1, 32,0);
@@ -2286,7 +2286,7 @@ VL_ATTR_COLD void Vmips_core___024root__trace_full_sub_0(Vmips_core___024root* v
         [0U][2U];
     __Vtemp_h7604577d__0[3U] = vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
         [0U][3U];
-    tracep->fullWData(oldp+254,(__Vtemp_h7604577d__0),102);
+    tracep->fullWData(oldp+254,(__Vtemp_h7604577d__0),103);
     __Vtemp_h760453c0__0[0U] = vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
         [1U][0U];
     __Vtemp_h760453c0__0[1U] = vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
@@ -2295,7 +2295,7 @@ VL_ATTR_COLD void Vmips_core___024root__trace_full_sub_0(Vmips_core___024root* v
         [1U][2U];
     __Vtemp_h760453c0__0[3U] = vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__mem_add_table
         [1U][3U];
-    tracep->fullWData(oldp+258,(__Vtemp_h760453c0__0),102);
+    tracep->fullWData(oldp+258,(__Vtemp_h760453c0__0),103);
     tracep->fullQData(oldp+262,(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue
                                 [0U]),33);
     tracep->fullQData(oldp+264,(vlSelf->mips_core__DOT__MEM_RESERVATION_STATION__DOT__store_queue
