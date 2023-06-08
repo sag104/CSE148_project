@@ -58,6 +58,7 @@ module reorder_buffer (
 
         rob_reg_wr.reg_wr_en    = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == REG;
         rob_reg_wr.reg_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].reg_dest;
+        rob_reg_wr.reg_log_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest;
         rob_reg_wr.reg_wr_data  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].value;
 
         rob_branch_commit.valid_branch      = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == BR;
@@ -92,6 +93,7 @@ module reorder_buffer (
                     end else if(input_inst_type == REG) begin
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].reg_dest <= phy_reg_output.rw_phy;
+                        fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest <= decoder_output.rw_addr;
                     end else begin //ST type instructions
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
                     end
@@ -100,7 +102,7 @@ module reorder_buffer (
 
                 if(fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].ready) begin
                     if( !(rob_mem_wr.mem_wr_en & rob_st_hc.stall)) begin
-                        fifo[rd_ptr[ROB_DEPTH_BITS-1:0]] <= '0;
+                        fifo[rd_ptr[ROB_DEPTH_BITS-1:0]] <= '{default:0};
                         rd_ptr <= rd_ptr + 1;
                     end
                 end

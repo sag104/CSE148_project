@@ -121,6 +121,7 @@ typedef struct packed {
 typedef struct packed {
 	logic [1:0] inst_type;
 	logic [5:0] reg_dest;
+	logic [4:0] logic_reg_dest;
 	logic [ADDR_WIDTH - 1:0] mem_dest;
 	logic [DATA_WIDTH - 1 : 0] value;
 	logic jump_reg;
@@ -128,10 +129,10 @@ typedef struct packed {
 } rob_entry;
 
 typedef struct packed{
-	logic [4:0] [5:0] log_res ;
-	logic [5:0] free_reg ;
-	logic [5:0] [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag;   
-	logic [5:0] reg_ready;  
+	logic [5:0] log_res [32];
+	logic [63:0] free_reg ;
+	logic [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag [64];   
+	logic [63:0] reg_ready;  
 } checkpoint;
 
 typedef struct packed{

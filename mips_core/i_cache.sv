@@ -224,6 +224,7 @@ module i_cache #(
 	begin
 		out.valid = hit;
 		out.data = (victim_hit) ? victim_dataline[i_block_offset]:databank_rdata[i_block_offset];
+		out.pc = i_pc_current.pc;	
 	end
 
 	always_comb

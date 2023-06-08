@@ -312,4 +312,19 @@ module mips_core (
 	assign axi_read_data.RID = RID;
 	assign axi_read_data.RDATA = RDATA;
 
+`ifdef SIMULATION
+	always_ff @(posedge clk) begin
+		if(rob_reg_wr.reg_wr_en) begin
+			wb_event(rob_reg_wr.reg_log_wr_addr, rob_reg_wr.reg_wr_data);
+		end
+
+		if(d_cache_input.valid & d_cache_output.valid) begin
+			if(d_cache_input.mem_action == READ) begin
+				ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_output.data);
+			end else begin
+				ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_input.data);
+			end
+		end
+	end
+`endif
 endmodule

@@ -262,7 +262,6 @@ int main(int argc, char **argv)
     while (!top->done && !(interrupt && main_time >= stop_time))
     {
         top->clk = !top->clk; // Toggle clock
-	cout <<
         if (top->clk)
             memory_driver->consume(main_time);
         if (main_time == 100)

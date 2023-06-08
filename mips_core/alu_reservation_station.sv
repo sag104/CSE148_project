@@ -18,22 +18,21 @@ module alu_reservation_station (
     alu_res_stat_entry reserv_stat_table [ALU_RES_STAT_DEPTH];
     logic full, ready;
     logic [ALU_RES_STAT_DEPTH_BITS - 1 : 0] write_index, ready_index;
-    logic [ALU_RES_STAT_DEPTH_BITS - 1 : 0] i,j,k;
 
     function automatic logic [ALU_RES_STAT_DEPTH_BITS : 0] check_full();
-        for (i = 0; i < ALU_RES_STAT_DEPTH; i++) begin
+        for (logic [31:0] i = 0; i < ALU_RES_STAT_DEPTH; i++) begin
             if (reserv_stat_table[i].valid == 0) begin
-                return {1'b0, i};
+                return {1'b0, i[ALU_RES_STAT_DEPTH_BITS - 1 : 0]};
             end
         end
         return '1;
     endfunction
 
     function automatic logic [ALU_RES_STAT_DEPTH_BITS : 0] get_ready_index();
-        for (j = 0; j < ALU_RES_STAT_DEPTH; j++) begin
+        for (logic [31:0] j = 0; j < ALU_RES_STAT_DEPTH; j++) begin
             if (reserv_stat_table[j].valid) begin
                 if(!reserv_stat_table[j].q_1 & !reserv_stat_table[j].q_2)
-                    return {1'b1, j};
+                    return {1'b1, j[ALU_RES_STAT_DEPTH_BITS - 1 : 0]};
             end
         end
         return '0;
@@ -105,7 +104,7 @@ module alu_reservation_station (
 
                 if(!e_hc.stall) begin
                     if(ready) begin
-                        reserv_stat_table[ready_index].valid <= 0;
+                        reserv_stat_table[ready_index] <= '{default:0};
                     end
                 end
             end

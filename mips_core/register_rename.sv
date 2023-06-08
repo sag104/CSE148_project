@@ -12,10 +12,10 @@ module register_rename (
     checkpoint checkpoint_buffer[CHECKPOINT_BUFFER_DEPTH];
     logic [CHECKPOINT_BUFFER_DEPTH_BITS - 1 : 0] ch_wr_ptr, ch_rd_ptr;
     
-    logic [4:0] [5:0] log_res ;  //maps the 32 logical registers to 64 physical registers
-    logic [5:0] free_reg ;       // list of physical registers that are free to be remapped
-    logic [5:0] [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag;   
-    logic [5:0] reg_ready;      //list of registers that have final value committed
+    logic [5:0] log_res [32];  //maps the 32 logical registers to 64 physical registers
+    logic [63:0] free_reg ;       // list of physical registers that are free to be remapped
+    logic [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag [64];   
+    logic [63:0] reg_ready;      //list of registers that have final value committed
     logic [5:0] free_phy_reg;
     logic avail_reg;
 
@@ -62,7 +62,12 @@ module register_rename (
             checkpoint_buffer <= '{default:0};
         end else begin
             if(branch_pred_hc.flush) begin
-                log_res <= checkpoint_buffer[ch_rd_ptr].log_res;
+		for(int i = 0; i < 32; i++) begin
+			log_res[i] <= checkpoint_buffer[ch_rd_ptr].log_res[i];
+		end
+		for(int j = 0; j < 64; j++) begin
+			reg_phy_rob_tag[j] <= checkpoint_buffer[ch_rd_ptr].reg_phy_rob_tag[j];
+		end
                 free_reg <= checkpoint_buffer[ch_rd_ptr].free_reg;
                 reg_ready <= checkpoint_buffer[ch_rd_ptr].reg_ready;
                 ch_wr_ptr <= 0;
@@ -79,11 +84,15 @@ module register_rename (
                         end
 
                         if(decoder_output.is_branch) begin
-                            checkpoint_buffer[ch_wr_ptr].log_res <= log_res;
-                            checkpoint_buffer[ch_wr_ptr].free_reg <= free_reg;                
-                            checkpoint_buffer[ch_wr_ptr].reg_ready <= reg_ready;                
-                            checkpoint_buffer[ch_wr_ptr].reg_phy_rob_tag <= reg_phy_rob_tag;
-                            ch_wr_ptr <= ch_wr_ptr + 1;
+				for(int i = 0; i < 32; i++) begin
+					checkpoint_buffer[ch_rd_ptr].log_res[i] <= log_res[i];
+				end
+				for(int j = 0; j < 64; j++) begin
+					checkpoint_buffer[ch_rd_ptr].reg_phy_rob_tag[j] <= reg_phy_rob_tag[j];
+				end
+                            	checkpoint_buffer[ch_wr_ptr].free_reg <= free_reg;                
+                            	checkpoint_buffer[ch_wr_ptr].reg_ready <= reg_ready;                
+                            	ch_wr_ptr <= ch_wr_ptr + 1;
                         end
                     end
                 end

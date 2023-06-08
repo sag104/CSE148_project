@@ -110,9 +110,10 @@ interface rob_reg_wr_ifc();
     logic reg_wr_en;
     logic [DATA_WIDTH - 1 : 0] reg_wr_data;
     logic [5:0] reg_wr_addr;
+    logic [4:0] reg_log_wr_addr;
 
-    modport in  (input reg_wr_en, reg_wr_data, reg_wr_addr);
-    modport out (output reg_wr_en, reg_wr_data, reg_wr_addr);
+    modport in  (input reg_wr_en, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
+    modport out (output reg_wr_en, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
 endinterface
 
 interface rob_mem_wr_ifc();

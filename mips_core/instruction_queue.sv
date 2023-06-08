@@ -25,7 +25,6 @@ module instruction_queue (
     end
 
     always_ff @(posedge clk) begin
-	$display("clk going");
         if(!rst_n) begin
             inst_queue <= '{default:0};
             wr_ptr <= 0;
