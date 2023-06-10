@@ -34,6 +34,7 @@ module mem_reservation_station (
 	logic [ADDR_WIDTH - 1 : 0] addr_next_reg;
 	logic [DATA_WIDTH - 1 : 0] data_reg;
     logic [ROB_DEPTH_BITS - 1 : 0] tag_reg;
+    logic [31:0] address;
 
     function automatic logic address_match(logic [ADDR_WIDTH - 1 : 0] compare_addr);
         integer i;
@@ -62,6 +63,8 @@ module mem_reservation_station (
         st_data_output.reg_value    = mem_add_table[rd_ptr].v_reg_val;
 
         ld_ready    = ready & (mem_add_table[rd_ptr].mem_action == READ) & !(address_match(mem_add_table[rd_ptr].addr));
+
+        address = decoder_output.immediate + reg_file_data.rs_data;
 
         mem_res_stat_status.full        = full;
         mem_res_stat_status.ld_ready    = ld_ready;
@@ -129,12 +132,28 @@ module mem_reservation_station (
                 wr_ptr <= 0;
                 rd_ptr <= 0;
             end else begin
-                if(!m_hc.stall & decoder_output.valid & decoder_output.is_mem_access) begin
+                if(!d_hc.stall & decoder_output.valid & decoder_output.is_mem_access) begin
                     mem_add_table[wr_ptr].tag <= rob_status.tag;
                     mem_add_table[wr_ptr].mem_action <= decoder_output.mem_action;
                     mem_add_table[wr_ptr].offset <= decoder_output.immediate;
-		    mem_add_table[wr_ptr].valid <= 1;
-                    if(decoder_output.mem_action == WRITE) begin
+		            mem_add_table[wr_ptr].valid <= 1;
+                    if(phy_reg_output.rs_ready) begin
+                        mem_add_table[wr_ptr].addr <= address;
+                        mem_add_table[wr_ptr].q_reg_val <= 0;
+                    end else begin
+                        mem_add_table[wr_ptr].addr <= 0;
+                        mem_add_table[wr_ptr].q_reg_val <= {1'b1, phy_reg_output.rs_tag};
+                    end
+
+                    if(phy_reg_output.rt_ready | !decoder_output.uses_rt) begin
+                        mem_add_table[wr_ptr].v_reg_val <= reg_file_data.rt_data;
+                        mem_add_table[wr_ptr].q_reg_val <= 0;
+                    end else begin
+                        mem_add_table[wr_ptr].v_reg_val <= 0;
+                        mem_add_table[wr_ptr].q_reg_val <= {1'b1, phy_reg_output.rt_tag};
+                    end
+                    /*if(decoder_output.mem_action == WRITE) begin
+
                         if(phy_reg_output.rs_ready) begin
                             mem_add_table[wr_ptr].v_reg_val <= reg_file_data.rs_data;
                             mem_add_table[wr_ptr].q_reg_val <= 0;
@@ -151,7 +170,7 @@ module mem_reservation_station (
                             mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rt_tag};
                         end
                     end else begin
-                            mem_add_table[wr_ptr].q_reg_val <= 0;
+                        mem_add_table[wr_ptr].q_reg_val <= 0;
                         if(phy_reg_output.rs_ready) begin
                             mem_add_table[wr_ptr].addr <= decoder_output.immediate + reg_file_data.rs_data;
                             mem_add_table[wr_ptr].q_reg_addr <= 0;
@@ -159,7 +178,7 @@ module mem_reservation_station (
                             mem_add_table[wr_ptr].addr <= 0;
                             mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rs_tag};
                         end
-                    end
+                    end*/
                     wr_ptr <= wr_ptr + 1;
                 end
 
@@ -180,10 +199,10 @@ module mem_reservation_station (
                     store_queue[sq_wr_ptr].valid <= 1;
                     store_queue[sq_wr_ptr].addr <= mem_add_table[rd_ptr].addr;
                     rd_ptr <= rd_ptr + 1;
-		    mem_add_table[rd_ptr].valid <= 0;
+                    mem_add_table[rd_ptr] <= '{default: 0};
                 end else if(ld_ready & !m_hc.stall) begin
                     rd_ptr <= rd_ptr + 1;
-		    mem_add_table[rd_ptr].valid <= 0;
+                    mem_add_table[rd_ptr] <= '{default: 0};
                 end
 
                 if(rob_mem_wr.mem_wr_en) begin

@@ -51,6 +51,7 @@ module mips_core (
     hazard_control_ifc e_hc();
     hazard_control_ifc m_hc();
     branch_pred_hc_ifc branch_pred_hc();
+    checkpoint_hc_ifc ch_hc();
 
     //fetch unit interfaces
     load_pc_ifc i_load_pc();
@@ -150,6 +151,8 @@ module mips_core (
         .rob_reg_wr(rob_reg_wr),
         .rob_status(rob_status),
         .branch_pred_hc(branch_pred_hc),
+        .d_hc(d_hc),
+        .ch_hc(ch_hc),
 
         .phy_reg_output(phy_reg_output)
     );
@@ -259,6 +262,7 @@ module mips_core (
 
         .i_hc(i_hc),
         .d_hc(d_hc),
+        .ch_hc(ch_hc),
         .rob_st_hc(rob_st_hc),
         .e_hc(e_hc),
         .m_hc(m_hc),

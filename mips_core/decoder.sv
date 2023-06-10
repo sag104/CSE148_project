@@ -120,6 +120,7 @@ module decoder (
 		out.pc = i_inst.pc;
 		out.alu_ctl = ALUCTL_NOP;
 		out.is_branch_jump = 1'b0;
+		out.is_branch = 1'b0;
 		out.is_jump = 1'b0;
 		out.is_jump_reg = 1'b0;
 		out.branch_target = '0;

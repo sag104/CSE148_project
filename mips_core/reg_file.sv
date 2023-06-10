@@ -27,7 +27,12 @@ logic [DATA_WIDTH - 1 : 0] regs [64];
 assign reg_file_data.rs_data = decoder_output.uses_rs ? regs[phy_reg_output.rs_phy] : '0;
 assign reg_file_data.rt_data = decoder_output.uses_rt ? regs[phy_reg_output.rt_phy] : '0;
 
+
+
 always_ff @(posedge clk) begin
+    if(decoder_output.rs_addr == 3 || decoder_output.rt_addr == 3) begin
+        $display("die");
+    end
     if(!rst_n) begin
         regs <= '{default:0};
     end else if(rob_reg_wr.reg_wr_en) begin

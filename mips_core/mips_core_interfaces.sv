@@ -18,6 +18,13 @@ interface branch_pred_hc_ifc ();
 	modport out (output flush, correct_pred);
 endinterface
 
+interface checkpoint_hc_ifc ();
+	logic capture;
+
+	modport in	(input capture);
+	modport out	(output capture);
+endinterface
+
 interface load_pc_ifc ();
 	logic we;	// Write Enable
 	logic [ADDR_WIDTH - 1 : 0] new_pc;
@@ -101,9 +108,10 @@ endinterface
 interface rob_status_ifc();
     logic full;
     logic [ROB_DEPTH_BITS - 1 : 0] tag;
+	logic valid_commit;
 
-    modport in  (input full, tag);
-    modport out (output full, tag);
+    modport in  (input full, tag, valid_commit);
+    modport out (output full, tag, valid_commit);
 endinterface
 
 interface rob_reg_wr_ifc();

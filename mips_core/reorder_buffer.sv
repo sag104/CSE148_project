@@ -21,7 +21,7 @@ module reorder_buffer (
     //BR is for branch instructions
     //ST is for store instructions that have a memory address destination
     //REG is for register operation so ALU operations or load instructions
-    enum logic [1:0] {BR = 0, JU = 1, ST = 2, REG = 3} INSTRUCTION_TYPE;
+    enum logic [1:0] {REG = 0, JU = 1, ST = 2, BR = 3} INSTRUCTION_TYPE;
 
     rob_entry fifo [ROB_DEPTH];
 
@@ -35,12 +35,21 @@ module reorder_buffer (
     logic mem_stall;
 
     always_comb begin
+
+        if(fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].ready) begin
+            if (!(fifo[rd_ptr[ROB_DEPTH_BITS - 1 : 0]].inst_type == ST & rob_st_hc.stall)) begin
+                rob_status.valid_commit = 1;
+            end else begin
+                rob_status.valid_commit = 0;
+            end
+        end
+
         empty           = wr_ptr == rd_ptr;
         empty_spot      = wr_ptr[ROB_DEPTH_BITS - 1 : 0];
         full            = (wr_ptr[ROB_DEPTH_BITS-1:0] == rd_ptr[ROB_DEPTH_BITS-1:0]) 
                         && (wr_ptr[ROB_DEPTH_BITS] != rd_ptr[ROB_DEPTH_BITS]);
         input_inst_type = (decoder_output.uses_rw) ? REG :
-                            (decoder_output.is_branch) ? BR :
+                            (decoder_output.is_branch_jump & !decoder_output.is_jump) ? BR :
                             (decoder_output.is_jump) ? JU :
                             (decoder_output.is_mem_access & decoder_output.mem_action == WRITE) ? ST :
                             REG;
@@ -56,7 +65,7 @@ module reorder_buffer (
         rob_mem_wr.mem_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].mem_dest;
         rob_mem_wr.mem_wr_data  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].value;
 
-        rob_reg_wr.reg_wr_en    = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == REG;
+        rob_reg_wr.reg_wr_en    = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == REG & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest != 0;
         rob_reg_wr.reg_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].reg_dest;
         rob_reg_wr.reg_log_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest;
         rob_reg_wr.reg_wr_data  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].value;
@@ -83,6 +92,7 @@ module reorder_buffer (
                     fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].inst_type <= input_inst_type;
                     fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].jump_reg <= decoder_output.is_jump_reg;
                     if(input_inst_type == BR) begin
+                        //$display("wr_ptr %d, rd_ptr %d, REG %d, BR %d", wr_ptr, rd_ptr, REG, BR);
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
                     end else if(input_inst_type == JU) begin
                         if(decoder_output.is_jump_reg) begin
@@ -93,6 +103,7 @@ module reorder_buffer (
                     end else if(input_inst_type == REG) begin
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].reg_dest <= phy_reg_output.rw_phy;
+                        //$display("log res is %d, rw_phy is %d", decoder_output.rw_addr, phy_reg_output.rw_phy);
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest <= decoder_output.rw_addr;
                     end else begin //ST type instructions
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
@@ -101,7 +112,7 @@ module reorder_buffer (
                 end
 
                 if(fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].ready) begin
-                    if( !(rob_mem_wr.mem_wr_en & rob_st_hc.stall)) begin
+                    if (!(fifo[rd_ptr[ROB_DEPTH_BITS - 1 : 0]].inst_type == ST & rob_st_hc.stall)) begin
                         fifo[rd_ptr[ROB_DEPTH_BITS-1:0]] <= '{default:0};
                         rd_ptr <= rd_ptr + 1;
                     end

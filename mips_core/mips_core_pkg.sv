@@ -119,13 +119,13 @@ typedef struct packed {
 } branch_pred_storage;
 
 typedef struct packed {
+	logic ready;
+	logic jump_reg;
 	logic [1:0] inst_type;
 	logic [5:0] reg_dest;
 	logic [4:0] logic_reg_dest;
 	logic [ADDR_WIDTH - 1:0] mem_dest;
 	logic [DATA_WIDTH - 1 : 0] value;
-	logic jump_reg;
-	logic ready;
 } rob_entry;
 
 typedef struct packed{
@@ -162,7 +162,7 @@ typedef struct packed {
 } store_address;
 
 typedef struct packed{
-	logic [31:0] pc;
+	logic [ADDR_WIDTH - 1 : 0] pc;
 	logic [31:0] data;
 } inst;
 

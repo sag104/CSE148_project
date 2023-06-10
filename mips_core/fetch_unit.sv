@@ -11,14 +11,21 @@ module fetch_unit (
     pc_ifc.out o_pc_next
 );
 
-    always_comb begin
-        if(i_hc.stall) begin
+	always_comb begin
+
+		if(i_load_pc.we) begin
+			o_pc_next.pc = i_load_pc.new_pc;
+		end else begin
+			o_pc_next.pc = (i_hc.stall) ? o_pc_current.pc : o_pc_current.pc + 4;
+		end
+
+        /*if(i_hc.stall) begin
             o_pc_next.pc = o_pc_current.pc;
         end else begin
             o_pc_next.pc = i_load_pc.we
 				? i_load_pc.new_pc
 				: o_pc_current.pc + 4;
-        end
+        end*/
     end
 
 	always_ff @(posedge clk) begin

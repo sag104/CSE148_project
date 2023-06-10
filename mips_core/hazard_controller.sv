@@ -15,14 +15,18 @@ module hazard_controller (
     
     hazard_control_ifc.out i_hc,
     hazard_control_ifc.out d_hc,
+    checkpoint_hc_ifc.out ch_hc,
     hazard_control_ifc.out rob_st_hc,
     hazard_control_ifc.out e_hc,
     hazard_control_ifc.out m_hc,
     branch_pred_hc_ifc.out branch_pred_hc,
     load_pc_ifc.out i_load_pc
+
 );
 
     enum logic {NO_JR = 0, WAIT_FOR_TARGET = 1} JR_STATE_LOGIC;
+    enum logic {NO_BR_COMMIT = 0, WAT_FOR_NEXT_COMMIT = 1} BR_STATE_LOGIC;
+    enum logic {WAIT_FOR_BRANCH = 0, WAIT_FOR_NEXT_INSTRUCTION = 1} CHECKPOINT_STATE_LOGIC;
 
     branch_controller BRANCH_CONTROLLER (
 		.clk, .rst_n,
@@ -41,7 +45,7 @@ module hazard_controller (
     logic [ROB_DEPTH_BITS - 1 : 0] bp_wr_ptr, bp_rd_ptr;
 
     logic ic_miss;
-	logic dec_overload;		// Branch predict taken or Jump
+	logic dec_overload_jump, dec_overload_branch, dec_overload;		// Branch predict taken or Jump
     logic jr_overload;
 	logic ex_overload;		// Branch prediction wrong
 	logic dc_miss;			// D cache miss
@@ -54,7 +58,7 @@ module hazard_controller (
     logic req_valid;
 
     logic jr_stall;
-    logic jr_state;
+    logic jr_state, br_wait_flush_state, checkpoint_state;
 
     // Control signals
 	logic if_stall, if_flush;
@@ -62,13 +66,56 @@ module hazard_controller (
 	logic ex_stall, ex_flush;
 	logic mem_stall, mem_flush;
     logic branch_hit;
+    logic dec_jump_reg, dec_branch_reg;
+    logic [ADDR_WIDTH - 1 : 0] dec_jump_reg_target, dec_branch_reg_target;
+
+
+    always_ff @(posedge clk) begin
+        case(checkpoint_state)
+            WAIT_FOR_BRANCH: begin
+                ch_hc.capture <= 0;
+                if(decoder_output.is_branch_jump & !decoder_output.is_jump) begin
+                    checkpoint_state <= WAIT_FOR_NEXT_INSTRUCTION;
+                end else begin
+                    checkpoint_state <= checkpoint_state;
+                end
+            end
+
+            WAIT_FOR_NEXT_INSTRUCTION: begin
+                if(!d_hc.stall & decoder_output.valid) begin
+                    ch_hc.capture <= 1;
+                    checkpoint_state <= WAIT_FOR_BRANCH;
+                end else begin
+                    ch_hc.capture <= 0;
+                    checkpoint_state <= checkpoint_state;
+                end
+            end
+
+        endcase
+    end
+    
 
     // Determine if we have these hazards
+
+    always_ff @(posedge clk) begin
+        dec_jump_reg <= (d_hc.stall) ? dec_jump_reg : dec_overload_jump;
+        dec_jump_reg_target <= (d_hc.stall) ? dec_jump_reg_target : decoder_output.branch_target;
+        dec_branch_reg <= (d_hc.stall) ? dec_branch_reg : dec_overload_branch;
+        dec_branch_reg_target <= (d_hc.stall) ? dec_branch_reg_target : decoder_output.branch_target;
+    
+        if(rob_branch_commit.valid_branch) begin
+            //$display("prediction %d, outcome %d",bp_buffer[bp_rd_ptr].prediction, rob_branch_commit.branch_outcome);
+        end
+
+    end
+
 	always_comb begin
 		ic_miss = ~i_cache_output.valid;
-		dec_overload = decoder_output.valid
-			& ( (decoder_output.is_jump & !decoder_output.is_jump_reg)
-				| (decoder_output.is_branch & branch_pred_output.prediction == TAKEN));
+        dec_overload = dec_overload_jump & dec_overload_branch;
+        dec_overload_jump = decoder_output.valid
+			& (decoder_output.is_jump & !decoder_output.is_jump_reg);
+		dec_overload_branch = decoder_output.valid
+			& (decoder_output.is_branch_jump & !decoder_output.is_jump & branch_pred_output.prediction == TAKEN);
         jr_overload = rob_jump_reg_commit.valid_jump_reg;
         ex_overload = rob_branch_commit.valid_branch
             & (bp_buffer[bp_rd_ptr].prediction != rob_branch_commit.branch_outcome);
@@ -77,19 +124,21 @@ module hazard_controller (
 		// lw_hazard is determined by forward unit.
 		dc_miss = d_cache_input.valid & !d_cache_output.valid;
 
-        req_valid = !d_hc.stall & decoder_output.is_branch;
+        req_valid = !d_hc.stall & (decoder_output.is_branch_jump & !decoder_output.is_jump);
 
         i_hc.stall = ic_miss | inst_q_output.full;
-        d_hc.stall = rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full | jr_stall;
-        d_hc.flush = dec_overload | jr_overload | ex_overload;
-        branch_pred_hc.flush = ex_overload;
-        rob_st_hc.stall = mem_res_stat_status.ld_ready;
+        d_hc.stall = branch_pred_hc.flush | rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full | jr_stall;
+        d_hc.flush = (!d_hc.stall & (dec_branch_reg | dec_jump_reg | jr_overload)) | ex_overload;
+        //branch_pred_hc.flush = ex_overload;
+        rob_st_hc.stall = mem_res_stat_status.ld_ready | dc_miss;
         e_hc.stall = d_cache_input.valid & d_cache_output.valid & (d_cache_input.mem_action == READ);
         m_hc.stall = dc_miss;
 
-        i_load_pc.we = dec_overload | ex_overload | jr_overload;
-		if (dec_overload) begin 
+        i_load_pc.we = dec_overload_branch | dec_overload_jump | jr_overload | ex_overload;
+		if (dec_overload_branch) begin 
 			i_load_pc.new_pc = decoder_output.branch_target;
+        end else if(dec_overload_jump) begin
+            i_load_pc.new_pc = decoder_output.branch_target;
         end else if(ex_overload) begin
 			i_load_pc.new_pc = bp_buffer[bp_rd_ptr].recovery_target;
         end else if(jr_overload) begin
@@ -105,7 +154,7 @@ module hazard_controller (
             bp_wr_ptr <= 0;
             bp_rd_ptr <= 0;
         end else begin
-            if(!d_hc.stall & decoder_output.is_branch) begin
+            if(!d_hc.stall & decoder_output.is_branch_jump & !decoder_output.is_jump) begin
                 bp_wr_ptr <= bp_wr_ptr + 1;
                 bp_buffer[bp_wr_ptr].pc <= decoder_output.pc;
                 bp_buffer[bp_wr_ptr].ghistory <= branch_pred_output.ghistory;
@@ -118,6 +167,35 @@ module hazard_controller (
             if(rob_branch_commit.valid_branch) begin
                 bp_rd_ptr <= bp_rd_ptr + 1;
             end
+        end
+    end
+
+    always_ff @(posedge clk) begin
+        if(!rst_n) begin
+            branch_pred_hc.flush <= 0;
+            br_wait_flush_state <= NO_BR_COMMIT;
+        end else begin
+            case (br_wait_flush_state)
+                NO_BR_COMMIT: begin
+                    if(ex_overload) begin
+                        branch_pred_hc.flush <= 0;
+                        br_wait_flush_state <= WAT_FOR_NEXT_COMMIT;
+                    end else begin
+                        branch_pred_hc.flush <= 0;
+                        br_wait_flush_state <= br_wait_flush_state;
+                    end
+                end
+
+                WAT_FOR_NEXT_COMMIT: begin
+                    if(rob_status.valid_commit) begin
+                        branch_pred_hc.flush <= 1;
+                        br_wait_flush_state <= NO_BR_COMMIT;
+                    end else begin
+                        branch_pred_hc.flush <= branch_pred_hc.flush;
+                        br_wait_flush_state <= br_wait_flush_state;
+                    end
+                end
+            endcase
         end
     end
 
