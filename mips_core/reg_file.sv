@@ -31,7 +31,7 @@ assign reg_file_data.rt_data = decoder_output.uses_rt ? regs[phy_reg_output.rt_p
 
 always_ff @(posedge clk) begin
     if(decoder_output.rs_addr == 3 || decoder_output.rt_addr == 3) begin
-        $display("die");
+        //$display("die %h", decoder_output.pc);
     end
     if(!rst_n) begin
         regs <= '{default:0};

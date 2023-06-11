@@ -64,6 +64,7 @@ module mips_core (
     decoder_output_ifc decoder_output();
 
     //rob interfaces
+    rob_reg_ready_data_ifc rob_reg_ready_data();
     rob_reg_wr_ifc rob_reg_wr();
     rob_mem_wr_ifc rob_mem_wr();
     rob_status_ifc rob_status();
@@ -106,6 +107,8 @@ module mips_core (
 	axi_write_response mem_write_response[1]();
 	axi_read_address mem_read_address[2]();
 	axi_read_data mem_read_data[2]();
+
+    int clock_counter;
 
     fetch_unit FETCH_UNIT (
         .clk, .rst_n,
@@ -167,6 +170,7 @@ module mips_core (
         .branch_pred_hc(branch_pred_hc),
         .cdb_output(cdb_output),
         .st_data_output(st_data_output),
+        .rob_reg_ready_data(rob_reg_ready_data),
 
         .rob_status(rob_status),
         .rob_reg_wr(rob_reg_wr),
@@ -195,6 +199,8 @@ module mips_core (
         .rob_status(rob_status),
         .e_hc(e_hc),
         .branch_pred_hc(branch_pred_hc),
+        .rob_reg_wr(rob_reg_wr),
+        .rob_reg_ready_data(rob_reg_ready_data),
 
         .alu_res_stat_output(alu_res_stat_output),
         .alu_res_stat_status(alu_res_stat_status)
@@ -216,8 +222,11 @@ module mips_core (
         .cdb_output(cdb_output),
         .rob_status(rob_status),
         .m_hc(m_hc),
+        .d_hc(d_hc),
         .branch_pred_hc(branch_pred_hc),
         .rob_mem_wr(rob_mem_wr),
+        .rob_reg_wr(rob_reg_wr),
+        .rob_reg_ready_data(rob_reg_ready_data),
 
         .st_data_output(st_data_output),
         .d_cache_input(d_cache_input),
@@ -318,14 +327,23 @@ module mips_core (
 
 `ifdef SIMULATION
 	always_ff @(posedge clk) begin
+
+        if(!rst_n) begin
+            clock_counter <= 0;
+        end else begin
+            clock_counter <= clock_counter + 1;
+        end
+
 		if(rob_reg_wr.reg_wr_en & (rob_reg_wr.reg_log_wr_addr != 0)) begin
 			wb_event(rob_reg_wr.reg_log_wr_addr, rob_reg_wr.reg_wr_data);
 		end
 
 		if(d_cache_input.valid & d_cache_output.valid) begin
 			if(d_cache_input.mem_action == READ) begin
+                $display("load at %d", clock_counter);
 				ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_output.data);
 			end else begin
+                //$display("store at %d", clock_counter);
 				ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_input.data);
 			end
 		end

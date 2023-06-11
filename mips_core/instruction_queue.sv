@@ -14,14 +14,14 @@ module instruction_queue (
     logic full, empty;
 
     always_comb begin
-        empty = (wr_ptr == rd_ptr);
-        full = (wr_ptr[INSTRUCTION_QUEUE_DEPTH_BITS-1:0] == rd_ptr[INSTRUCTION_QUEUE_DEPTH_BITS-1:0])
+        empty   = (wr_ptr == rd_ptr);
+        full    = (wr_ptr[INSTRUCTION_QUEUE_DEPTH_BITS-1:0] == rd_ptr[INSTRUCTION_QUEUE_DEPTH_BITS-1:0])
                 && (wr_ptr[INSTRUCTION_QUEUE_DEPTH_BITS] != rd_ptr[INSTRUCTION_QUEUE_DEPTH_BITS]);
 
-        inst_q_output.valid = !empty;
-        inst_q_output.full = full;
-        inst_q_output.data = inst_queue[rd_ptr].data;
-        inst_q_output.pc = inst_queue[rd_ptr].pc;
+        inst_q_output.full      = full;
+        inst_q_output.valid     = !empty;
+        inst_q_output.data      = inst_queue[rd_ptr[INSTRUCTION_QUEUE_DEPTH_BITS-1:0]].data;
+        inst_q_output.pc        = inst_queue[rd_ptr[INSTRUCTION_QUEUE_DEPTH_BITS-1:0]].pc;
     end
 
     always_ff @(posedge clk) begin
@@ -34,7 +34,7 @@ module instruction_queue (
                 inst_queue <= '{default:0};
                 wr_ptr <= 0;
                 rd_ptr <= 0;
-            end else begin
+            end else  begin
                 if(!full) begin
                     if(i_cache_output.valid) begin
                         inst_queue[wr_ptr].data <= i_cache_output.data;
@@ -44,12 +44,13 @@ module instruction_queue (
                 end
 
                 if(!empty) begin
-                    if(!d_hc.stall)
+                    if(!d_hc.stall) begin
+                        inst_queue[rd_ptr] <= '{default:0};
                         rd_ptr <= rd_ptr + 1;
+                    end 
                 end
             end
         end
     end
-
 
 endmodule

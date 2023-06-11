@@ -15,7 +15,8 @@ module reorder_buffer (
     rob_reg_wr_ifc.out rob_reg_wr,
     rob_mem_wr_ifc.out rob_mem_wr,
     rob_branch_commit_ifc.out rob_branch_commit,
-    rob_jump_reg_commit_ifc.out rob_jump_reg_commit
+    rob_jump_reg_commit_ifc.out rob_jump_reg_commit,
+    rob_reg_ready_data_ifc.out rob_reg_ready_data
 );
 
     //BR is for branch instructions
@@ -32,9 +33,13 @@ module reorder_buffer (
     logic [1:0] input_inst_type;
     logic full, empty;
     logic top_ready;
-    logic mem_stall;
 
     always_comb begin
+
+        rob_reg_ready_data.rob_rs_ready = fifo[phy_reg_output.rs_tag].ready;
+        rob_reg_ready_data.rs_data = fifo[phy_reg_output.rs_tag].value;
+        rob_reg_ready_data.rob_rt_ready = fifo[phy_reg_output.rt_tag].ready;
+        rob_reg_ready_data.rt_data = fifo[phy_reg_output.rt_tag].value;
 
         if(fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].ready) begin
             if (!(fifo[rd_ptr[ROB_DEPTH_BITS - 1 : 0]].inst_type == ST & rob_st_hc.stall)) begin
@@ -54,23 +59,22 @@ module reorder_buffer (
                             (decoder_output.is_mem_access & decoder_output.mem_action == WRITE) ? ST :
                             REG;
 
-        mem_stall = (fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == ST) & rob_st_hc.stall;
-
         rob_status.full = full;
         rob_status.tag = empty_spot;
 
         top_ready = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].ready;
 
-        rob_mem_wr.mem_wr_en    = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == ST;
+        rob_mem_wr.mem_wr_en    = !branch_pred_hc.flush & top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == ST & !rob_st_hc.stall;
         rob_mem_wr.mem_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].mem_dest;
         rob_mem_wr.mem_wr_data  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].value;
 
-        rob_reg_wr.reg_wr_en    = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == REG & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest != 0;
+        rob_reg_wr.reg_wr_en    = !branch_pred_hc.flush & top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == REG & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest != 0;
         rob_reg_wr.reg_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].reg_dest;
         rob_reg_wr.reg_log_wr_addr  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest;
         rob_reg_wr.reg_wr_data  = fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].value;
+        rob_reg_wr.tag          = rd_ptr[ROB_DEPTH_BITS-1:0];
 
-        rob_branch_commit.valid_branch      = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == BR;
+        rob_branch_commit.valid_branch      = top_ready & (fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].inst_type == BR);
         rob_branch_commit.branch_outcome    = (fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].value == 0) ? NOT_TAKEN : TAKEN;
 
         rob_jump_reg_commit.valid_jump_reg  = top_ready & fifo[rd_ptr[ROB_DEPTH_BITS-1:0]].jump_reg;
@@ -89,10 +93,11 @@ module reorder_buffer (
                 rd_ptr <= 0;
             end else begin
                 if (!d_hc.stall & decoder_output.valid) begin
-                    fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].inst_type <= input_inst_type;
-                    fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].jump_reg <= decoder_output.is_jump_reg;
+                    fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].valid      <= 1;
+                    fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].inst_type  <= input_inst_type;
+                    fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].jump_reg   <= decoder_output.is_jump_reg;
+                    fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].pc         <= decoder_output.pc;
                     if(input_inst_type == BR) begin
-                        //$display("wr_ptr %d, rd_ptr %d, REG %d, BR %d", wr_ptr, rd_ptr, REG, BR);
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
                     end else if(input_inst_type == JU) begin
                         if(decoder_output.is_jump_reg) begin
@@ -103,7 +108,6 @@ module reorder_buffer (
                     end else if(input_inst_type == REG) begin
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].reg_dest <= phy_reg_output.rw_phy;
-                        //$display("log res is %d, rw_phy is %d", decoder_output.rw_addr, phy_reg_output.rw_phy);
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].logic_reg_dest <= decoder_output.rw_addr;
                     end else begin //ST type instructions
                         fifo[wr_ptr[ROB_DEPTH_BITS-1:0]].ready <= 0;

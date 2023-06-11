@@ -9,8 +9,11 @@ module mem_reservation_station (
     rob_status_ifc.in rob_status,
     common_data_bus_ifc.in cdb_output,
     hazard_control_ifc.in m_hc,
+    hazard_control_ifc.in d_hc,
     branch_pred_hc_ifc.in branch_pred_hc,
     rob_mem_wr_ifc.in rob_mem_wr,
+    rob_reg_wr_ifc.in rob_reg_wr,
+    rob_reg_ready_data_ifc.in rob_reg_ready_data,
 
     mem_addr_unit_st_output_ifc.out st_data_output,
     mem_res_stat_status_ifc.out mem_res_stat_status,
@@ -33,7 +36,7 @@ module mem_reservation_station (
 	logic [ADDR_WIDTH - 1 : 0] addr_reg;
 	logic [ADDR_WIDTH - 1 : 0] addr_next_reg;
 	logic [DATA_WIDTH - 1 : 0] data_reg;
-    logic [ROB_DEPTH_BITS - 1 : 0] tag_reg;
+    logic [ROB_DEPTH_BITS - 1 : 0] tag_reg, top_tag;
     logic [31:0] address;
 
     function automatic logic address_match(logic [ADDR_WIDTH - 1 : 0] compare_addr);
@@ -73,7 +76,10 @@ module mem_reservation_station (
         d_cache_input.mem_action    = mem_action_reg;
         d_cache_input.addr          = addr_reg;
         d_cache_input.addr_next     = addr_next_reg;
+        d_cache_input.tag           = tag_reg;
         d_cache_input.data          = data_reg;
+
+        top_tag = mem_add_table[rd_ptr].tag;
     end
 
     always_ff @(posedge clk) begin
@@ -137,48 +143,28 @@ module mem_reservation_station (
                     mem_add_table[wr_ptr].mem_action <= decoder_output.mem_action;
                     mem_add_table[wr_ptr].offset <= decoder_output.immediate;
 		            mem_add_table[wr_ptr].valid <= 1;
+                    mem_add_table[wr_ptr].pc <= decoder_output.pc;
                     if(phy_reg_output.rs_ready) begin
                         mem_add_table[wr_ptr].addr <= address;
-                        mem_add_table[wr_ptr].q_reg_val <= 0;
+                        mem_add_table[wr_ptr].q_reg_addr <= 0;
+                    end else if(rob_reg_ready_data.rob_rs_ready) begin
+                        mem_add_table[wr_ptr].addr <= decoder_output.immediate + rob_reg_ready_data.rs_data;
+                        mem_add_table[wr_ptr].q_reg_addr <= 0;
                     end else begin
                         mem_add_table[wr_ptr].addr <= 0;
-                        mem_add_table[wr_ptr].q_reg_val <= {1'b1, phy_reg_output.rs_tag};
+                        mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rs_tag};
                     end
 
                     if(phy_reg_output.rt_ready | !decoder_output.uses_rt) begin
                         mem_add_table[wr_ptr].v_reg_val <= reg_file_data.rt_data;
                         mem_add_table[wr_ptr].q_reg_val <= 0;
+                    end else if(rob_reg_ready_data.rob_rt_ready) begin
+                        mem_add_table[wr_ptr].v_reg_val <= rob_reg_ready_data.rt_data;
+                        mem_add_table[wr_ptr].q_reg_val <= 0;
                     end else begin
                         mem_add_table[wr_ptr].v_reg_val <= 0;
                         mem_add_table[wr_ptr].q_reg_val <= {1'b1, phy_reg_output.rt_tag};
                     end
-                    /*if(decoder_output.mem_action == WRITE) begin
-
-                        if(phy_reg_output.rs_ready) begin
-                            mem_add_table[wr_ptr].v_reg_val <= reg_file_data.rs_data;
-                            mem_add_table[wr_ptr].q_reg_val <= 0;
-                        end else begin
-                            mem_add_table[wr_ptr].v_reg_val <= 0;
-                            mem_add_table[wr_ptr].q_reg_val <= {1'b1, phy_reg_output.rs_tag};
-                        end
-
-                        if(phy_reg_output.rt_ready) begin
-                            mem_add_table[wr_ptr].addr <= decoder_output.immediate + reg_file_data.rt_data;
-                            mem_add_table[wr_ptr].q_reg_addr <= 0;
-                        end else begin
-                            mem_add_table[wr_ptr].addr <= 0;
-                            mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rt_tag};
-                        end
-                    end else begin
-                        mem_add_table[wr_ptr].q_reg_val <= 0;
-                        if(phy_reg_output.rs_ready) begin
-                            mem_add_table[wr_ptr].addr <= decoder_output.immediate + reg_file_data.rs_data;
-                            mem_add_table[wr_ptr].q_reg_addr <= 0;
-                        end else begin
-                            mem_add_table[wr_ptr].addr <= 0;
-                            mem_add_table[wr_ptr].q_reg_addr <= {1'b1, phy_reg_output.rs_tag};
-                        end
-                    end*/
                     wr_ptr <= wr_ptr + 1;
                 end
 
@@ -191,6 +177,19 @@ module mem_reservation_station (
                         if (mem_add_table[a].q_reg_val == {1'b1, cdb_output.tag}) begin
                             mem_add_table[a].q_reg_val <= 0;
                             mem_add_table[a].v_reg_val <= cdb_output.data;
+                        end
+                    end
+                end
+
+                if(rob_reg_wr.reg_wr_en) begin
+                    for (int a = 0; a < MEM_RES_STAT_DEPTH; a++) begin
+                        if (mem_add_table[a].q_reg_addr == {1'b1, rob_reg_wr.tag}) begin
+                            mem_add_table[a].q_reg_addr <= 0;
+                            mem_add_table[a].addr <= mem_add_table[a].offset + rob_reg_wr.reg_wr_data;
+                        end
+                        if (mem_add_table[a].q_reg_val == {1'b1, rob_reg_wr.tag}) begin
+                            mem_add_table[a].q_reg_val <= 0;
+                            mem_add_table[a].v_reg_val <= rob_reg_wr.reg_wr_data;
                         end
                     end
                 end

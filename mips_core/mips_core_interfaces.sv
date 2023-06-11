@@ -13,9 +13,10 @@ interface branch_pred_hc_ifc ();
 	// Stall signal has higher priority
 	logic flush;	//flush on mispredict
     logic correct_pred;
+	logic [ADDR_WIDTH - 1 : 0] pc;
 
-	modport in  (input flush, correct_pred);
-	modport out (output flush, correct_pred);
+	modport in  (input flush, correct_pred, pc);
+	modport out (output flush, correct_pred, pc);
 endinterface
 
 interface checkpoint_hc_ifc ();
@@ -116,12 +117,23 @@ endinterface
 
 interface rob_reg_wr_ifc();
     logic reg_wr_en;
+    logic [ROB_DEPTH_BITS - 1 : 0] tag;
     logic [DATA_WIDTH - 1 : 0] reg_wr_data;
     logic [5:0] reg_wr_addr;
     logic [4:0] reg_log_wr_addr;
 
-    modport in  (input reg_wr_en, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
-    modport out (output reg_wr_en, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
+    modport in  (input reg_wr_en, tag, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
+    modport out (output reg_wr_en, tag, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
+endinterface
+
+interface rob_reg_ready_data_ifc ();
+	logic rob_rs_ready;
+	logic rob_rt_ready;
+    logic [DATA_WIDTH - 1 : 0] rs_data;
+    logic [DATA_WIDTH - 1 : 0] rt_data;
+
+	modport in	(input rob_rs_ready, rob_rt_ready, rs_data, rt_data);
+	modport out	(output rob_rs_ready, rob_rt_ready, rs_data, rt_data);
 endinterface
 
 interface rob_mem_wr_ifc();
