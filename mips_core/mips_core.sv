@@ -52,6 +52,7 @@ module mips_core (
     hazard_control_ifc m_hc();
     branch_pred_hc_ifc branch_pred_hc();
     checkpoint_hc_ifc ch_hc();
+    branch_stall_hc_ifc branch_stall_hc();
 
     //fetch unit interfaces
     load_pc_ifc i_load_pc();
@@ -73,6 +74,7 @@ module mips_core (
 
     //register renaming interfaces
     register_rename_ifc phy_reg_output();
+    cp_status_ifc cp_status();
 
     //reg file interfaces
     reg_file_output_ifc reg_file_data();
@@ -157,7 +159,8 @@ module mips_core (
         .d_hc(d_hc),
         .ch_hc(ch_hc),
 
-        .phy_reg_output(phy_reg_output)
+        .phy_reg_output(phy_reg_output),
+        .cp_status(cp_status)
     );
 
     reorder_buffer REORDER_BUFFER (
@@ -168,6 +171,7 @@ module mips_core (
         .d_hc(d_hc),
         .rob_st_hc(rob_st_hc),
         .branch_pred_hc(branch_pred_hc),
+        .branch_stall_hc(branch_stall_hc),
         .cdb_output(cdb_output),
         .st_data_output(st_data_output),
         .rob_reg_ready_data(rob_reg_ready_data),
@@ -209,9 +213,11 @@ module mips_core (
     alu ALU (
         .in(alu_res_stat_output),
 
-        .out(alu_output),
-        .done(done)
+        .out(alu_output)
+        //.done(done)
     );
+
+    assign done = rob_status.done & rob_status.valid_commit;
 
     mem_reservation_station MEM_RESERVATION_STATION (
         .clk, .rst_n,
@@ -268,6 +274,7 @@ module mips_core (
         .d_cache_output(d_cache_output),            //used for e_hc, m_hc
         .rob_branch_commit(rob_branch_commit),      //used for branch_pred_hc
         .rob_jump_reg_commit(rob_jump_reg_commit),
+        .cp_status(cp_status),
 
         .i_hc(i_hc),
         .d_hc(d_hc),
@@ -276,7 +283,8 @@ module mips_core (
         .e_hc(e_hc),
         .m_hc(m_hc),
         .branch_pred_hc(branch_pred_hc),
-        .i_load_pc(i_load_pc)
+        .i_load_pc(i_load_pc),
+        .branch_stall_hc(branch_stall_hc)
     );
 
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -334,19 +342,47 @@ module mips_core (
             clock_counter <= clock_counter + 1;
         end
 
+        if(rob_status.valid_commit) begin
+            if(rob_status.commit_instr != 0) begin
+                pc_event(rob_status.commit_pc);
+            end
+            if(rob_status.pass) begin
+                `ifdef SIMULATION
+				    $display("%m (%t) PASS test %x", $time, rob_status.mtc0_op);
+				`endif
+            end else if(rob_status.fail) begin
+                `ifdef SIMULATION
+					$display("%m (%t) FAIL test %x", $time, rob_status.mtc0_op);
+				`endif
+            end else if(rob_status.done) begin
+                `ifdef SIMULATION
+					$display("%m (%t) DONE test %x", $time, rob_status.mtc0_op);
+				`endif
+            end
+        end
+
 		if(rob_reg_wr.reg_wr_en & (rob_reg_wr.reg_log_wr_addr != 0)) begin
+            if(rob_reg_wr.is_load) begin
+                ls_event(READ, rob_reg_wr.addr, rob_reg_wr.reg_wr_data);
+            end
 			wb_event(rob_reg_wr.reg_log_wr_addr, rob_reg_wr.reg_wr_data);
 		end
 
-		if(d_cache_input.valid & d_cache_output.valid) begin
-			if(d_cache_input.mem_action == READ) begin
-                $display("load at %d", clock_counter);
-				ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_output.data);
+        if(rob_mem_wr.mem_wr_en) begin
+            ls_event(WRITE, rob_mem_wr.mem_wr_addr, rob_mem_wr.mem_wr_data);
+        end
+
+		//if(d_cache_input.valid & d_cache_output.valid & d_cache_input.mem_action == WRITE) begin
+        //if(d_cache_input.valid & d_cache_input.mem_action == WRITE) begin
+            //ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_input.data);
+			/*if(d_cache_input.mem_action == READ) begin
+                //$display("load at %d", clock_counter);
+				//ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_output.data);
 			end else begin
                 //$display("store at %d", clock_counter);
 				ls_event(d_cache_input.mem_action, d_cache_input.addr, d_cache_input.data);
-			end
-		end
+			end*/
+		//end
 	end
 `endif
 endmodule

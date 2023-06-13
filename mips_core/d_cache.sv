@@ -25,7 +25,7 @@
  *
  * See wiki page "Synchronous Caches" for details.
  */
-import mips_core_pkg::*;
+`include "mips_core.svh"
 
 module d_cache #(
 	parameter INDEX_WIDTH = 6,  // 2 * 1 KB Cache Size 
@@ -89,74 +89,108 @@ module d_cache #(
 
 	// databank signals
 	logic [LINE_SIZE - 1 : 0] databank_select;
-	logic [LINE_SIZE - 1 : 0] databank_we;
+	logic [LINE_SIZE - 1 : 0] databank_we[ASSOCIATIVITY];
 	logic [DATA_WIDTH - 1 : 0] databank_wdata;
 	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
-	logic [DATA_WIDTH - 1 : 0] databank_rdata [LINE_SIZE];
+	logic [DATA_WIDTH - 1 : 0] databank_rdata [ASSOCIATIVITY][LINE_SIZE];
+
+	logic select_way;
+	logic r_select_way;
+	logic [DEPTH - 1 : 0] lru_rp;
 
 	// databanks
-	genvar g;
+	genvar g,w;
 	generate
 		for (g = 0; g < LINE_SIZE; g++)
-		begin : databanks
-			cache_bank #(
-				.DATA_WIDTH (DATA_WIDTH),
-				.ADDR_WIDTH (INDEX_WIDTH)
-			) databank (
-				.clk,
-				.i_we (databank_we[g]),
-				.i_wdata(databank_wdata),
-				.i_waddr(databank_waddr),
-				.i_raddr(databank_raddr),
+		begin : datasets
+			for (w=0; w< ASSOCIATIVITY; w++)
+			begin : databanks
+				cache_bank #(
+					.DATA_WIDTH (DATA_WIDTH),
+					.ADDR_WIDTH (INDEX_WIDTH)
+				) databank (
+					.clk,
+					.i_we (databank_we[w][g]),
+					.i_wdata(databank_wdata),
+					.i_waddr(databank_waddr),
+					.i_raddr(databank_raddr),
 
-				.o_rdata(databank_rdata[g])
-			);
+					.o_rdata(databank_rdata[w][g])
+				);
+			end
 		end
 	endgenerate
 
 	// tagbank signals
-	logic tagbank_we;
+	logic tagbank_we[ASSOCIATIVITY];
 	logic [TAG_WIDTH - 1 : 0] tagbank_wdata;
 	logic [INDEX_WIDTH - 1 : 0] tagbank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] tagbank_raddr;
-	logic [TAG_WIDTH - 1 : 0] tagbank_rdata;
+	logic [TAG_WIDTH - 1 : 0] tagbank_rdata[ASSOCIATIVITY];
 
-	cache_bank #(
-		.DATA_WIDTH (TAG_WIDTH),
-		.ADDR_WIDTH (INDEX_WIDTH)
-	) tagbank (
-		.clk,
-		.i_we    (tagbank_we),
-		.i_wdata (tagbank_wdata),
-		.i_waddr (tagbank_waddr),
-		.i_raddr (tagbank_raddr),
+	generate
+		for (w=0; w< ASSOCIATIVITY; w++)
+		begin: tagbanks
+			cache_bank #(
+				.DATA_WIDTH (TAG_WIDTH),
+				.ADDR_WIDTH (INDEX_WIDTH)
+			) tagbank (
+				.clk,
+				.i_we    (tagbank_we[w]),
+				.i_wdata (tagbank_wdata),
+				.i_waddr (tagbank_waddr),
+				.i_raddr (tagbank_raddr),
 
-		.o_rdata (tagbank_rdata)
-	);
+				.o_rdata (tagbank_rdata[w])
+			);
+		end
+	endgenerate
 
 	// Valid bits
-	logic [DEPTH - 1 : 0] valid_bits;
+	logic [DEPTH - 1 : 0] valid_bits[ASSOCIATIVITY];
 	// Dirty bits
-	logic [DEPTH - 1 : 0] dirty_bits;
+	logic [DEPTH - 1 : 0] dirty_bits[ASSOCIATIVITY];
 
 	// Shift registers for flushing
 	logic [DATA_WIDTH - 1 : 0] shift_rdata[LINE_SIZE];
 
 	// Intermediate signals
-	logic hit, miss;
+	logic hit, miss, tag_hit;
 	logic last_flush_word;
 	logic last_refill_word;
 
 	always_comb
 	begin
+		tag_hit = ( ((i_tag == tagbank_rdata[0]) & valid_bits[0][i_index])
+				  |	((i_tag == tagbank_rdata[1]) & valid_bits[1][i_index]));
 		hit = in.valid
-			& valid_bits[i_index]
-			& (i_tag == tagbank_rdata)
+			& (tag_hit)
 			& (state == STATE_READY);
 		miss = in.valid & ~hit;
 		last_flush_word = databank_select[LINE_SIZE - 1] & mem_write_data.WVALID;
 		last_refill_word = databank_select[LINE_SIZE - 1] & mem_read_data.RVALID;
+	
+		if (hit)
+		begin
+			if (i_tag == tagbank_rdata[0])
+			begin
+				select_way = 'b0;
+			end
+			else 
+			begin
+				select_way = 'b1;
+			end
+		end
+		else if (miss)
+		begin
+			select_way = lru_rp[i_index];
+		end
+		else
+		begin
+			select_way = 'b0;
+		end
+	
 	end
 
 	always_comb
@@ -164,7 +198,7 @@ module d_cache #(
 		mem_write_address.AWVALID = state == STATE_FLUSH_REQUEST;
 		mem_write_address.AWID = 0;
 		mem_write_address.AWLEN = LINE_SIZE;
-		mem_write_address.AWADDR = {tagbank_rdata, i_index, {BLOCK_OFFSET_WIDTH + 2{1'b0}}};
+		mem_write_address.AWADDR = {tagbank_rdata[r_select_way], i_index, {BLOCK_OFFSET_WIDTH + 2{1'b0}}};
 		mem_write_data.WVALID = state == STATE_FLUSH_DATA;
 		mem_write_data.WID = 0;
 		mem_write_data.WDATA = shift_rdata[0];
@@ -186,11 +220,12 @@ module d_cache #(
 
 	always_comb
 	begin
-		databank_we = '0;
+		for (int i=0; i<ASSOCIATIVITY;i++)
+			databank_we[i] = '0;
 		if (mem_read_data.RVALID)				// We are refilling data
-			databank_we = databank_select;
+			databank_we[r_select_way] = databank_select;
 		else if (hit & (in.mem_action == WRITE))	// We are storing a word
-			databank_we[i_block_offset] = 1'b1;
+			databank_we[select_way][i_block_offset] = 1'b1;
 	end
 
 	always_comb
@@ -199,7 +234,7 @@ module d_cache #(
 		begin
 			databank_wdata = in.data;
 			databank_waddr = i_index;
-			if (next_state == STATE_FLUSH_DATA)
+			if (next_state == STATE_FLUSH_REQUEST)
 				databank_raddr = i_index;
 			else
 				databank_raddr = i_index_next;
@@ -217,7 +252,8 @@ module d_cache #(
 
 	always_comb
 	begin
-		tagbank_we = last_refill_word;
+		tagbank_we[r_select_way] = last_refill_word;
+		tagbank_we[~r_select_way] = '0;
 		tagbank_wdata = r_tag;
 		tagbank_waddr = r_index;
 		tagbank_raddr = i_index_next;
@@ -226,7 +262,7 @@ module d_cache #(
 	always_comb
 	begin
 		out.valid = hit;
-		out.data = databank_rdata[i_block_offset];
+		out.data = databank_rdata[select_way][i_block_offset];
 		out.tag = in.tag;
 	end
 
@@ -236,7 +272,7 @@ module d_cache #(
 		unique case (state)
 			STATE_READY:
 				if (miss)
-					if (valid_bits[i_index] & dirty_bits[i_index])
+					if (valid_bits[select_way][i_index] & dirty_bits[select_way][i_index])
 						next_state = STATE_FLUSH_REQUEST;
 					else
 						next_state = STATE_REFILL_REQUEST;
@@ -276,7 +312,7 @@ module d_cache #(
 
 		if (state == STATE_FLUSH_REQUEST && next_state == STATE_FLUSH_DATA)
 			for (int i = 0; i < LINE_SIZE; i++)
-				shift_rdata[i] <= databank_rdata[i];
+				shift_rdata[i] <= databank_rdata[r_select_way][i];
 	end
 
 	always_ff @(posedge clk)
@@ -285,7 +321,10 @@ module d_cache #(
 		begin
 			state <= STATE_READY;
 			databank_select <= 1;
-			valid_bits <= '0;
+			for (int i=0; i<ASSOCIATIVITY;i++)
+				valid_bits[i] <= '0;
+			for (int i=0; i<DEPTH;i++)
+				lru_rp[i] <= 0;
 		end
 		else
 		begin
@@ -298,9 +337,14 @@ module d_cache #(
 					begin
 						r_tag <= i_tag;
 						r_index <= i_index;
+						r_select_way <= select_way;
 					end
 					else if (in.mem_action == WRITE)
-						dirty_bits[i_index] <= 1'b1;
+						dirty_bits[select_way][i_index] <= 1'b1;
+					if (in.valid)
+					begin
+						lru_rp[i_index] <= ~select_way;
+					end
 				end
 
 				STATE_FLUSH_DATA:
@@ -318,8 +362,8 @@ module d_cache #(
 
 					if (last_refill_word)
 					begin
-						valid_bits[r_index] <= 1'b1;
-						dirty_bits[r_index] <= 1'b0;
+						valid_bits[r_select_way][r_index] <= 1'b1;
+						dirty_bits[r_select_way][r_index] <= 1'b0;
 					end
 				end
 			endcase

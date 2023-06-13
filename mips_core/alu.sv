@@ -14,21 +14,28 @@
 
 module alu (
 	alu_res_stat_output_ifc.in in,
-	alu_output_ifc.out out,
-	output logic done
+	alu_output_ifc.out out
+	//output logic done
 );
+
+	
+	//mips_core_pkg::BranchOutcome branch_outcome;
 
 	always_comb
 	begin
 		out.valid = 1'b0;
 		out.result = '0;
         out.tag = '0;
-		done = 1'b0;
+		//done = 1'b0;
+		out.pass = 1'b0;
+		out.fail = 1'b0;
+		out.done = 1'b0;
 
 		if (in.valid)
 		begin
 			out.valid = 1'b1;
             out.tag = in.tag;
+			out.mtc0_op = 0;
 
 			case (in.alu_ctl)
 				ALUCTL_NOP:  out.result = '0;
@@ -51,34 +58,52 @@ module alu (
 
 				ALUCTL_MTC0_PASS:   // MTC0 -- redefined for our purposes.
 				begin
-				`ifdef SIMULATION
+				out.pass = 1'b1;
+				out.mtc0_op = in.op2;
+				/*`ifdef SIMULATION
 					$display("%m (%t) PASS test %x", $time, in.op2);
-				`endif
+				`endif*/
 				end
 
 				ALUCTL_MTC0_FAIL:
 				begin
-				`ifdef SIMULATION
+				out.fail = 1'b1;
+				out.mtc0_op = in.op2;
+				/*`ifdef SIMULATION
 					$display("%m (%t) FAIL test %x", $time, in.op2);
-				`endif
+				`endif*/
 				end
 
 				ALUCTL_MTC0_DONE:
 				begin
-					done = 1'b1;
-				`ifdef SIMULATION
+				out.done = 1'b1;
+				out.mtc0_op = in.op2;
+				/*`ifdef SIMULATION
 					$display("%m (%t) DONE test %x", $time, in.op2);
-				`endif
+				`endif*/
 				end
 
-				ALUCTL_BA:   out.result = TAKEN;
-				ALUCTL_BEQ:  out.result = in.op1 == in.op2     ? TAKEN : NOT_TAKEN;
-				ALUCTL_BNE:  out.result = in.op1 != in.op2     ? TAKEN : NOT_TAKEN;
-				ALUCTL_BLEZ: out.result = in.op1 <= signed'(0) ? TAKEN : NOT_TAKEN;
-				ALUCTL_BGTZ: out.result = in.op1 > signed'(0)  ? TAKEN : NOT_TAKEN;
-				ALUCTL_BGEZ: out.result = in.op1 >= signed'(0) ? TAKEN : NOT_TAKEN;
-				ALUCTL_BLTZ: out.result = in.op1 < signed'(0)  ? TAKEN : NOT_TAKEN;
-
+				ALUCTL_BA:   begin
+					out.result = TAKEN;
+				end
+				ALUCTL_BEQ:	begin
+					out.result = in.op1 == in.op2     ? TAKEN : NOT_TAKEN;
+				end
+				ALUCTL_BNE:  begin
+					out.result = in.op1 != in.op2     ? TAKEN : NOT_TAKEN;
+				end
+				ALUCTL_BLEZ: begin
+					out.result = in.op1 <= signed'(0) ? TAKEN : NOT_TAKEN;
+				end
+				ALUCTL_BGTZ: begin
+					out.result = in.op1 > signed'(0)  ? TAKEN : NOT_TAKEN;
+				end
+				ALUCTL_BGEZ: begin
+					out.result = in.op1 >= signed'(0) ? TAKEN : NOT_TAKEN;
+				end
+				ALUCTL_BLTZ: begin
+					out.result = in.op1 < signed'(0)  ? TAKEN : NOT_TAKEN;
+				end
 				default:
 				begin
 				`ifdef SIMULATION

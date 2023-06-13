@@ -117,6 +117,7 @@ module decoder (
 	begin
 		// Set defaults to nop
 		out.valid = i_inst.valid;
+		out.instr = i_inst.data;
 		out.pc = i_inst.pc;
 		out.alu_ctl = ALUCTL_NOP;
 		out.is_branch_jump = 1'b0;

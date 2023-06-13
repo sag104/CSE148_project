@@ -122,9 +122,16 @@ typedef struct packed {
 	logic ready;
 	logic valid;
 	logic jump_reg;
+	logic is_load;
+	logic pass;
+	logic fail;
+	logic done;
+	logic [DATA_WIDTH - 1 : 0] mtc0_op;
+	logic [DATA_WIDTH - 1 : 0] instr;
 	logic [1:0] inst_type;
 	logic [5:0] reg_dest;
 	logic [4:0] logic_reg_dest;
+	logic [ADDR_WIDTH - 1 : 0] addr;
 	logic [ADDR_WIDTH - 1 : 0] pc;
 	logic [ADDR_WIDTH - 1 : 0] mem_dest;
 	logic [DATA_WIDTH - 1 : 0] value;

@@ -13,6 +13,11 @@ module common_data_bus (
 		cdb_output.valid 					= (mem_valid) | alu_output.valid;
 		{cdb_output.tag, cdb_output.data} 	= (mem_valid) ? {mem_output.tag, mem_output.data} :
 											(alu_output.valid) ? {alu_output.tag, alu_output.result} : '0;
+		cdb_output.addr						= mem_input.addr;
+		cdb_output.pass						= (mem_valid) ? 0 : (alu_output.valid) ? alu_output.pass : 0;
+		cdb_output.fail						= (mem_valid) ? 0 : (alu_output.valid) ? alu_output.fail : 0;
+		cdb_output.done						= (mem_valid) ? 0 : (alu_output.valid) ? alu_output.done : 0;
+		cdb_output.mtc0_op					= (mem_valid) ? 0 : (alu_output.valid) ? alu_output.mtc0_op : 0;
 	end
 
 endmodule

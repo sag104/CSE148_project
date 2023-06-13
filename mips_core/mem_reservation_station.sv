@@ -82,43 +82,50 @@ module mem_reservation_station (
         top_tag = mem_add_table[rd_ptr].tag;
     end
 
+    always_comb begin
+        if(m_hc.stall) begin
+            addr_next_reg = addr_reg;
+        end else begin
+            if(ld_ready) begin
+                addr_next_reg = mem_add_table[rd_ptr].addr;
+            end else if (rob_mem_wr.mem_wr_addr != 0) begin
+                addr_next_reg = rob_mem_wr.mem_wr_addr;
+            end else begin
+                addr_next_reg = 0;
+            end
+        end
+    end
+
     always_ff @(posedge clk) begin
         if(!rst_n) begin
             mem_input_valid_reg <= 0;
-            mem_action_reg <= 0;
+            mem_action_reg <= READ;
             addr_reg <= 0;
-            addr_next_reg <= 0;
             data_reg <= 0;
             tag_reg <= 0;
         end else begin
-            if(m_hc.stall) begin
-                mem_input_valid_reg <= mem_input_valid_reg;
-                mem_action_reg <= mem_action_reg;
-                addr_reg <= addr_reg;
-                addr_next_reg <= addr_next_reg;
-                data_reg <= data_reg;
-                tag_reg <= tag_reg;
-            end else if (ld_ready) begin
-                mem_input_valid_reg <= 1;
-                mem_action_reg <= READ;
-                addr_reg <= mem_add_table[rd_ptr].addr;
-                addr_next_reg <= mem_add_table[rd_ptr].addr;
-                data_reg <= 0;
-                tag_reg <= mem_add_table[rd_ptr].tag;
-            end else if (rob_mem_wr.mem_wr_en) begin
-                mem_input_valid_reg <= 1;
-                mem_action_reg <= WRITE;
-                addr_reg <= rob_mem_wr.mem_wr_addr;
-                addr_next_reg <= rob_mem_wr.mem_wr_addr;
-                data_reg <= rob_mem_wr.mem_wr_data;
-                tag_reg <= 0;
-            end else begin
+            /*if(branch_pred_hc.flush) begin
                 mem_input_valid_reg <= 0;
-                mem_action_reg <= 0;
-                addr_reg <= 0;
-                addr_next_reg <= 0;
-                data_reg <= 0;
-                tag_reg <= 0;
+            end else */if(!m_hc.stall) begin
+                if (ld_ready) begin
+                    mem_input_valid_reg <= 1;
+                    mem_action_reg <= READ;
+                    addr_reg <= mem_add_table[rd_ptr].addr;
+                    data_reg <= 0;
+                    tag_reg <= mem_add_table[rd_ptr].tag;
+                end else if (rob_mem_wr.mem_wr_en) begin
+                    mem_input_valid_reg <= 1;
+                    mem_action_reg <= WRITE;
+                    addr_reg <= rob_mem_wr.mem_wr_addr;
+                    data_reg <= rob_mem_wr.mem_wr_data;
+                    tag_reg <= 0;
+                end else begin
+                    mem_input_valid_reg <= 0;
+                    mem_action_reg <= READ;
+                    addr_reg <= 0;
+                    data_reg <= 0;
+                    tag_reg <= 0;
+                end
             end
         end
     end
@@ -137,6 +144,9 @@ module mem_reservation_station (
                 mem_add_table <= '{default:0};
                 wr_ptr <= 0;
                 rd_ptr <= 0;
+                store_queue <= '{default:0};
+                sq_wr_ptr <= 0;
+                sq_rd_ptr <= 0;
             end else begin
                 if(!d_hc.stall & decoder_output.valid & decoder_output.is_mem_access) begin
                     mem_add_table[wr_ptr].tag <= rob_status.tag;

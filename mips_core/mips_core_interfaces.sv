@@ -76,6 +76,7 @@ endinterface
 interface decoder_output_ifc ();
 	logic valid;
 	logic [ADDR_WIDTH - 1 : 0] pc;
+	logic [DATA_WIDTH - 1 : 0] instr;
 	mips_core_pkg::AluCtl alu_ctl;
 	logic is_branch_jump;
 	logic is_branch;
@@ -98,32 +99,40 @@ interface decoder_output_ifc ();
 	logic uses_rw;
 	mips_core_pkg::MipsReg rw_addr;
 
-	modport in  (input valid, pc, alu_ctl, is_branch_jump, is_branch, is_jump, is_jump_reg,
+	modport in  (input valid, pc, instr, alu_ctl, is_branch_jump, is_branch, is_jump, is_jump_reg,
 		branch_target, is_mem_access, mem_action, uses_rs, rs_addr, uses_rt,
 		rt_addr, uses_immediate, immediate, uses_rw, rw_addr);
-	modport out (output valid, pc, alu_ctl, is_branch_jump, is_branch, is_jump, is_jump_reg,
+	modport out (output valid, pc, instr, alu_ctl, is_branch_jump, is_branch, is_jump, is_jump_reg,
 		branch_target, is_mem_access, mem_action, uses_rs, rs_addr, uses_rt,
 		rt_addr, uses_immediate, immediate, uses_rw, rw_addr);
 endinterface
 
 interface rob_status_ifc();
     logic full;
+	logic pass;
+	logic fail;
+	logic done;
+	logic [DATA_WIDTH - 1 : 0] mtc0_op;
     logic [ROB_DEPTH_BITS - 1 : 0] tag;
 	logic valid_commit;
+	logic [ADDR_WIDTH - 1 : 0] commit_pc;
+	logic [DATA_WIDTH - 1 : 0] commit_instr;
 
-    modport in  (input full, tag, valid_commit);
-    modport out (output full, tag, valid_commit);
+    modport in  (input full, pass, fail, done, mtc0_op, tag, valid_commit, commit_pc, commit_instr);
+    modport out (output full, pass, fail, done, mtc0_op, tag, valid_commit, commit_pc, commit_instr);
 endinterface
 
 interface rob_reg_wr_ifc();
     logic reg_wr_en;
+	logic is_load;
+	logic [ADDR_WIDTH - 1 : 0] addr;
     logic [ROB_DEPTH_BITS - 1 : 0] tag;
     logic [DATA_WIDTH - 1 : 0] reg_wr_data;
     logic [5:0] reg_wr_addr;
     logic [4:0] reg_log_wr_addr;
 
-    modport in  (input reg_wr_en, tag, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
-    modport out (output reg_wr_en, tag, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
+    modport in  (input reg_wr_en, is_load, addr, tag, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
+    modport out (output reg_wr_en, is_load, addr, tag, reg_wr_data, reg_wr_addr, reg_log_wr_addr);
 endinterface
 
 interface rob_reg_ready_data_ifc ();
@@ -191,8 +200,8 @@ interface alu_res_stat_output_ifc ();
     logic valid;
     logic [ROB_DEPTH_BITS - 1 : 0] tag;
     mips_core_pkg::AluCtl alu_ctl;
-    logic [DATA_WIDTH - 1 : 0] op1;
-    logic [DATA_WIDTH - 1 : 0] op2;
+    logic signed [DATA_WIDTH - 1 : 0] op1;
+    logic signed [DATA_WIDTH - 1 : 0] op2;
 
     modport in (input valid, tag, alu_ctl, op1, op2);
     modport out (output valid, tag, alu_ctl, op1, op2);
@@ -209,18 +218,27 @@ interface alu_output_ifc ();
 	logic valid;
     logic [ROB_DEPTH_BITS - 1 : 0] tag;
 	logic [DATA_WIDTH - 1 : 0] result;
+	logic pass;
+	logic fail;
+	logic done;
+	logic mtc0_op;
 
-	modport in  (input valid, tag, result);
-	modport out (output valid, tag, result);
+	modport in  (input valid, tag, result, pass, fail, done, mtc0_op);
+	modport out (output valid, tag, result, pass, fail, done, mtc0_op);
 endinterface
 
 interface common_data_bus_ifc ();
 	logic valid;
+	logic pass;
+	logic fail;
+	logic done;
+	logic [DATA_WIDTH - 1 : 0] mtc0_op;
     logic [ROB_DEPTH_BITS - 1 : 0] tag;
-    logic [31:0] data;
+    logic [DATA_WIDTH - 1 : 0] data;
+	logic [ADDR_WIDTH - 1 : 0] addr;
     
-	modport in  (input valid, tag, data);
-	modport out  (output valid, tag, data);
+	modport in  (input valid, pass, fail, done, mtc0_op, tag, data, addr);
+	modport out  (output valid, pass, fail, done, mtc0_op, tag, data, addr);
 endinterface
 
 interface d_cache_input_ifc ();
@@ -242,4 +260,18 @@ interface d_cache_output_ifc ();
 
 	modport in  (input valid, tag, data);
 	modport out (output valid, tag, data);
+endinterface
+
+interface cp_status_ifc ();
+	logic cp;
+
+	modport in	(input cp);
+	modport out	(output cp);
+endinterface
+
+interface branch_stall_hc_ifc();
+	logic stall;
+
+	modport in	(input stall);
+	modport out	(output stall);
 endinterface

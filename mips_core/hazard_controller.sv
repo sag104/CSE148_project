@@ -12,6 +12,7 @@ module hazard_controller (
     d_cache_output_ifc.in d_cache_output,
     rob_branch_commit_ifc.in rob_branch_commit,
     rob_jump_reg_commit_ifc.in rob_jump_reg_commit,
+    cp_status_ifc.in cp_status,
     
     hazard_control_ifc.out i_hc,
     hazard_control_ifc.out d_hc,
@@ -20,7 +21,8 @@ module hazard_controller (
     hazard_control_ifc.out e_hc,
     hazard_control_ifc.out m_hc,
     branch_pred_hc_ifc.out branch_pred_hc,
-    load_pc_ifc.out i_load_pc
+    load_pc_ifc.out i_load_pc,
+    branch_stall_hc_ifc.out branch_stall_hc
 
 );
 
@@ -72,6 +74,11 @@ module hazard_controller (
     logic dec_jump_reg, dec_branch_reg;
     logic [ADDR_WIDTH - 1 : 0] dec_jump_reg_target, dec_branch_reg_target, b_j_branch_target;
 
+    logic double_branch;
+    logic branch_stall;
+
+    logic stall_check;
+
   /*  always_comb begin
         case(checkpoint_state)
 
@@ -93,7 +100,7 @@ module hazard_controller (
                 if(!d_hc.stall & decoder_output.is_branch_jump & !decoder_output.is_jump) begin
                     checkpoint_state <= WAIT_FOR_INPUT_INSTRUCTION;
                 end else begin
-                    checkpoint_state <= checkpoint_state;
+                    checkpoint_state <= WAIT_FOR_BRANCH;
                 end
             end
 
@@ -103,7 +110,7 @@ module hazard_controller (
                     checkpoint_state <= WAIT_FOR_BRANCH;
                 end else begin
                     ch_hc.capture <= 0;
-                    checkpoint_state <= checkpoint_state;
+                    checkpoint_state <= WAIT_FOR_INPUT_INSTRUCTION;
                 end
             end
         endcase
@@ -134,7 +141,7 @@ module hazard_controller (
         endcase
     end*/
 
-    always_comb begin
+    /*always_comb begin
         case (b_j_state)
 
             WAIT_B_J: begin
@@ -147,16 +154,15 @@ module hazard_controller (
 
 
         endcase
-    end 
+    end*/
 
     always_ff @(posedge clk) begin
         if(!rst_n) begin
             b_j_state <= WAIT_B_J;
         end else begin
             case (b_j_state)
-
                 WAIT_B_J: begin
-                    //b_j_load_pc <= 0;
+                    b_j_load_pc <= 0;
                     if(d_hc.stall) begin
                         b_j_state <= WAIT_B_J;
                     end else begin
@@ -175,19 +181,21 @@ module hazard_controller (
 
                 WAIT_FOR_NEXT_INSTRUCTION: begin
                     if(d_hc.stall) begin
+                        b_j_load_pc <= 0;
                         b_j_state <= WAIT_FOR_NEXT_INSTRUCTION;
                     end else begin
                         if(decoder_output.valid) begin
-                            //b_j_load_pc <= 1;
+                            b_j_load_pc <= 1;
                             b_j_state <= WAIT_B_J;
                         end else begin
+                            b_j_load_pc <= 0;
                             b_j_state <= WAIT_FOR_NEXT_INSTRUCTION;
                         end
                     end
                 end
 
                 WAIT_FOR_NEXT_INSTRUCTION_JR: begin
-                    //b_j_load_pc <= 0;
+                    b_j_load_pc <= 0;
                     if(d_hc.stall) begin
                         b_j_state <= WAIT_FOR_NEXT_INSTRUCTION_JR;
                     end else begin
@@ -204,13 +212,13 @@ module hazard_controller (
                     if(rob_jump_reg_commit.valid_jump_reg) begin
                         jr_stall <= 0;
                         b_j_state <= WAIT_B_J;
-                        //b_j_load_pc <= 1;
+                        b_j_load_pc <= 1;
                         b_j_branch_target <= rob_jump_reg_commit.jump_target;
                     end else begin
+                        b_j_load_pc <= 0;
                         b_j_state <= WAIT_FOR_TARGET;
                     end
                 end
-
             endcase
         end
     end
@@ -218,12 +226,12 @@ module hazard_controller (
 
     // Determine if we have these hazards
 
-    always_ff @(posedge clk) begin
+    /*always_ff @(posedge clk) begin
         dec_jump_reg <= (d_hc.stall) ? dec_jump_reg : dec_overload_jump;
         dec_jump_reg_target <= (d_hc.stall) ? dec_jump_reg_target : decoder_output.branch_target;
         dec_branch_reg <= (d_hc.stall) ? dec_branch_reg : dec_overload_branch;
         dec_branch_reg_target <= (d_hc.stall) ? dec_branch_reg_target : decoder_output.branch_target;
-    end
+    end*/
 
 	always_comb begin
 		ic_miss = ~i_cache_output.valid;
@@ -239,8 +247,14 @@ module hazard_controller (
 		dc_miss = d_cache_input.valid & !d_cache_output.valid;
         req_valid = !d_hc.stall & (decoder_output.is_branch_jump & !decoder_output.is_jump);
 
+        double_branch = (cp_status.cp | ch_hc.capture) & (decoder_output.valid & decoder_output.is_branch_jump);
+
+        branch_stall_hc.stall = (checkpoint_state == WAIT_FOR_INPUT_INSTRUCTION) | ch_hc.capture;
+        //branch_stall_hc.stall = (checkpoint_state == WAIT_FOR_INPUT_INSTRUCTION);
+        stall_check = branch_stall_hc.stall & rob_branch_commit.valid_branch;
+
         i_hc.stall = ic_miss | inst_q_output.full;
-        d_hc.stall = rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full | jr_stall;
+        d_hc.stall = d_hc.flush | rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full | jr_stall | double_branch;
         //d_hc.flush = (!d_hc.stall & (dec_branch_reg | dec_jump_reg | jr_overload)) | ex_overload;
         d_hc.flush = b_j_load_pc | branch_pred_hc.flush;
         //d_hc.flush = (!d_hc.stall & (dec_overload_branch | dec_overload_jump | jr_overload)) | ex_overload;
@@ -251,7 +265,6 @@ module hazard_controller (
 
         i_load_pc.we = d_hc.flush;
         i_load_pc.new_pc = b_j_branch_target;
-
 
         /*i_load_pc.we = dec_overload_branch | dec_overload_jump | jr_overload | ex_overload;
 		if (dec_overload_branch) begin 

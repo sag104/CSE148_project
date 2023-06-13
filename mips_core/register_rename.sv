@@ -8,7 +8,8 @@ module register_rename (
         hazard_control_ifc.in d_hc,
         checkpoint_hc_ifc.in ch_hc,
 
-        register_rename_ifc.out phy_reg_output
+        register_rename_ifc.out phy_reg_output,
+        cp_status_ifc.out cp_status
 );
     
     logic [5:0] log_res [32];  //maps the 32 logical registers to 64 physical registers
@@ -47,6 +48,8 @@ module register_rename (
         {avail_reg, free_phy_reg} = first_free_phy_reg();
         active_reg = active_list[active_rd_ptr];
         active_reg_ch = active_list_ch[active_rd_ptr_ch];
+
+        cp_status.cp = cp;
     end
 
     always_ff @(posedge clk) begin
