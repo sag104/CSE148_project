@@ -8,7 +8,7 @@
  * set via INDEX_WIDTH and BLOCK_OFFSET_WIDTH parameters. Notice that line size
  * means number of words (each consist of 32 bit) in a line. Because all
  * addresses in mips_core are 26 byte addresses, so the sum of TAG_WIDTH,
- * INDEX_WIDTH and BLOCK_OFFSET_WIDTH is ADDR_WIDTH - 2.
+ * INDEX_WIDTH and BLOCK_OFFSET_WIDTH is `ADDR_WIDTH - 2.
  * The ASSOCIATIVITY is fixed at 2 because of the replacement policy. The replacement
  * policy also needs changes when changing the ASSOCIATIVITY 
  *
@@ -27,6 +27,17 @@
  */
 `include "mips_core.svh"
 
+interface d_cache_input_ifc ();
+	logic valid;
+	mips_core_pkg::MemAccessType mem_action;
+	logic [`ADDR_WIDTH - 1 : 0] addr;
+	logic [`ADDR_WIDTH - 1 : 0] addr_next;
+	logic [`DATA_WIDTH - 1 : 0] data;
+
+	modport in  (input valid, mem_action, addr, addr_next, data);
+	modport out (output valid, mem_action, addr, addr_next, data);
+endinterface
+
 module d_cache #(
 	parameter INDEX_WIDTH = 6,  // 2 * 1 KB Cache Size 
 	parameter BLOCK_OFFSET_WIDTH = 2,
@@ -36,11 +47,12 @@ module d_cache #(
 	input clk,    // Clock
 	input rst_n,  // Synchronous reset active low
 
+	//output pageReplacement,   //0 is LRU by default, 1 is BIP.
 	// Request
 	d_cache_input_ifc.in in,
 
 	// Response
-	d_cache_output_ifc.out out,
+	cache_output_ifc.out out,
 
 	// AXI interfaces
 	axi_write_address.master mem_write_address,
@@ -49,7 +61,7 @@ module d_cache #(
 	axi_read_address.master mem_read_address,
 	axi_read_data.master mem_read_data
 );
-	localparam TAG_WIDTH = ADDR_WIDTH - INDEX_WIDTH - BLOCK_OFFSET_WIDTH - 2;
+	localparam TAG_WIDTH = `ADDR_WIDTH - INDEX_WIDTH - BLOCK_OFFSET_WIDTH - 2;
 	localparam LINE_SIZE = 1 << BLOCK_OFFSET_WIDTH;
 	localparam DEPTH = 1 << INDEX_WIDTH;
 
@@ -61,6 +73,18 @@ module d_cache #(
 		end
 	endgenerate
 
+	// enum logic {
+	// 	LRU, 
+	// 	BIP
+	// } CACHE_REPLACEMENT;
+
+
+	logic [4:0] BIPCTR;
+	logic [9:0] PSEL;
+	logic [DEPTH - 1 : 0] FIXED;
+	logic [31 : 0] counter;
+	logic d_cache_rp;
+
 	// Parsing
 	logic [TAG_WIDTH - 1 : 0] i_tag;
 	logic [INDEX_WIDTH - 1 : 0] i_index;
@@ -68,8 +92,9 @@ module d_cache #(
 
 	logic [INDEX_WIDTH - 1 : 0] i_index_next;
 
-	assign {i_tag, i_index, i_block_offset} = in.addr[ADDR_WIDTH - 1 : 2];
+	assign {i_tag, i_index, i_block_offset} = in.addr[`ADDR_WIDTH - 1 : 2];
 	assign i_index_next = in.addr_next[BLOCK_OFFSET_WIDTH + 2 +: INDEX_WIDTH];
+	
 	// Above line uses +: slice, a feature of SystemVerilog
 	// See https://stackoverflow.com/questions/18067571
 
@@ -90,15 +115,20 @@ module d_cache #(
 	// databank signals
 	logic [LINE_SIZE - 1 : 0] databank_select;
 	logic [LINE_SIZE - 1 : 0] databank_we[ASSOCIATIVITY];
-	logic [DATA_WIDTH - 1 : 0] databank_wdata;
+	logic [`DATA_WIDTH - 1 : 0] databank_wdata;
 	logic [INDEX_WIDTH - 1 : 0] databank_waddr;
 	logic [INDEX_WIDTH - 1 : 0] databank_raddr;
-	logic [DATA_WIDTH - 1 : 0] databank_rdata [ASSOCIATIVITY][LINE_SIZE];
+	logic [`DATA_WIDTH - 1 : 0] databank_rdata [ASSOCIATIVITY][LINE_SIZE];
 
 	logic select_way;
 	logic r_select_way;
 	logic [DEPTH - 1 : 0] lru_rp;
+	logic [DEPTH - 1 : 0] rp;   // rp = 0 is that LRU algorithm, rp = 1 is that BIP alogorithm. 
+	logic [DEPTH - 1 : 0] valid_lru_BIP; //some times we put it to MRU position. If it is LRU, we do not care too much, always pick the first one.
 
+	//if valid_lru_BIP is true for this entry, we can use lru_rp as this lru. if the valid is not true.
+	//if valid_lru_BIP is true and rp is 1, then we can use the lru_rp. if valid_lru_BIP is false. Then we just pick 0.
+//i_index is depth long.
 	// databanks
 	genvar g,w;
 	generate
@@ -107,7 +137,7 @@ module d_cache #(
 			for (w=0; w< ASSOCIATIVITY; w++)
 			begin : databanks
 				cache_bank #(
-					.DATA_WIDTH (DATA_WIDTH),
+					.DATA_WIDTH (`DATA_WIDTH),
 					.ADDR_WIDTH (INDEX_WIDTH)
 				) databank (
 					.clk,
@@ -153,12 +183,18 @@ module d_cache #(
 	logic [DEPTH - 1 : 0] dirty_bits[ASSOCIATIVITY];
 
 	// Shift registers for flushing
-	logic [DATA_WIDTH - 1 : 0] shift_rdata[LINE_SIZE];
+	logic [`DATA_WIDTH - 1 : 0] shift_rdata[LINE_SIZE];
 
 	// Intermediate signals
 	logic hit, miss, tag_hit;
 	logic last_flush_word;
 	logic last_refill_word;
+
+	// always_ff() begin
+	// 	if ((BIPCTR != 0) && (rp[i_index] == 1)) begin
+	// 		valid_lru_BIP[i_index] = 1;
+	// 	end
+	// end
 
 	always_comb
 	begin
@@ -184,7 +220,9 @@ module d_cache #(
 		end
 		else if (miss)
 		begin
-			select_way = lru_rp[i_index];
+			if ((rp[i_index] == 0) || (rp[i_index] == 1 && valid_lru_BIP[i_index])) begin
+				select_way = lru_rp[i_index];
+			end
 		end
 		else
 		begin
@@ -192,6 +230,20 @@ module d_cache #(
 		end
 	
 	end
+
+	// update only on fixed thing.
+	always_ff @(posedge clk) begin
+		if (miss) begin
+			if (FIXED[i_index] && rp[i_index] == 1) begin
+				BIPCTR <= BIPCTR + 1;
+				PSEL <= PSEL - 1;
+			end
+			else if (FIXED[i_index] && rp[i_index] == 0)begin
+				PSEL <= PSEL + 1;
+			end
+		end
+	end
+
 
 	always_comb
 	begin
@@ -263,7 +315,6 @@ module d_cache #(
 	begin
 		out.valid = hit;
 		out.data = databank_rdata[select_way][i_block_offset];
-		out.tag = in.tag;
 	end
 
 	always_comb
@@ -319,15 +370,68 @@ module d_cache #(
 	begin
 		if(~rst_n)
 		begin
+			d_cache_rp <= 0;
 			state <= STATE_READY;
 			databank_select <= 1;
 			for (int i=0; i<ASSOCIATIVITY;i++)
 				valid_bits[i] <= '0;
-			for (int i=0; i<DEPTH;i++)
+			for (int i=0; i<DEPTH;i++) begin
 				lru_rp[i] <= 0;
+				valid_lru_BIP[i] <= 0;
+			end
+			BIPCTR <= '0;
+			PSEL <= 511;   //set to this one, if miss on BIP, we add 1, if miss on DIP
+			counter <= '0;
+
+			//only 1 of 100 is always be LRU, 1 of 100 is always be BIP.
+			for (int i=0; i<DEPTH;i++) begin
+				if (i % 10 == 0) begin
+					rp[i] <= 0;
+					FIXED[i] <= 1;
+				end
+				else if (i % 10 == 1)begin
+					rp[i] <= 1;
+					FIXED[i] <= 1;
+				end
+				else begin
+					FIXED[i] <= 0;
+				end
+			end
 		end
 		else
 		begin
+			
+			if ((BIPCTR == 0) && (rp[i_index_next] == 1)) begin
+				valid_lru_BIP[i_index_next] <= 1;
+			end
+
+			counter <= counter + 1;
+
+			if (counter == 10000) begin
+				counter <= '0;
+				if (PSEL >= 512) begin
+					for (int i=0; i<DEPTH;i++) begin
+						if (i % 100 != 0 && i % 100 != 1) begin
+							rp[i] <= 1;
+						end
+					end
+					d_cache_rp <= 1;
+				end
+				else begin
+					for (int i=0; i<DEPTH;i++) begin
+						if (i % 100 != 0 && i % 100 != 1) begin
+							rp[i] <= 0;
+						end
+					end
+					d_cache_rp <= 0;
+				end
+				BIPCTR <= '0;
+				PSEL <= 511;
+			end
+			else begin
+
+			end
+
 			state <= next_state;
 
 			case (state)
@@ -369,4 +473,13 @@ module d_cache #(
 			endcase
 		end
 	end
+
+`ifdef SIMULATION
+	always_ff @(posedge clk)
+	begin
+		if (~d_cache_rp) stats_event("LRU number");	
+		if (d_cache_rp) stats_event("BIP number");		
+	end 
+`endif
 endmodule
+

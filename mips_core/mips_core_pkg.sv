@@ -8,22 +8,7 @@
  *
  * See wiki page "Systemverilog Primer" section package and enum for details.
  */
-
 package mips_core_pkg;
-
-parameter DATA_WIDTH = 32;
-parameter ADDR_WIDTH = 26;
-parameter G_HISTORY_BITS = 12;
-parameter ROB_DEPTH = 4;
-parameter ROB_DEPTH_BITS = 2;
-parameter ALU_RES_STAT_DEPTH = 4;
-parameter ALU_RES_STAT_DEPTH_BITS = 2;
-parameter MEM_RES_STAT_DEPTH = 4;
-parameter MEM_RES_STAT_DEPTH_BITS = 2;
-parameter INSTRUCTION_QUEUE_DEPTH = 4;
-parameter INSTRUCTION_QUEUE_DEPTH_BITS = 2;
-parameter CHECKPOINT_BUFFER_DEPTH = 4;
-parameter CHECKPOINT_BUFFER_DEPTH_BITS = 2;
 
 typedef enum logic [4:0] {
 	zero = 5'd0,
@@ -100,81 +85,5 @@ typedef enum logic {
 	NOT_TAKEN,
 	TAKEN
 } BranchOutcome;
-
-typedef struct packed {
-	logic [ADDR_WIDTH - 1 : 0] pc;
-	mips_core_pkg::BranchOutcome prediction;
-	mips_core_pkg::BranchOutcome prediction_gshare;
-	mips_core_pkg::BranchOutcome prediction_2bit;
-	logic [G_HISTORY_BITS - 1 : 0] ghistory;
-} branch_pred_info;
-
-typedef struct packed {
-	logic [ADDR_WIDTH - 1 : 0] pc;
-	mips_core_pkg::BranchOutcome prediction;
-	mips_core_pkg::BranchOutcome prediction_gshare;
-	mips_core_pkg::BranchOutcome prediction_2bit;
-	logic [G_HISTORY_BITS - 1 : 0] ghistory;
-	logic [ADDR_WIDTH - 1 : 0] recovery_target;
-} branch_pred_storage;
-
-typedef struct packed {
-	logic ready;
-	logic valid;
-	logic jump_reg;
-	logic is_load;
-	logic pass;
-	logic fail;
-	logic done;
-	logic [DATA_WIDTH - 1 : 0] mtc0_op;
-	logic [DATA_WIDTH - 1 : 0] instr;
-	logic [1:0] inst_type;
-	logic [5:0] reg_dest;
-	logic [4:0] logic_reg_dest;
-	logic [ADDR_WIDTH - 1 : 0] addr;
-	logic [ADDR_WIDTH - 1 : 0] pc;
-	logic [ADDR_WIDTH - 1 : 0] mem_dest;
-	logic [DATA_WIDTH - 1 : 0] value;
-} rob_entry;
-
-typedef struct packed{
-	logic [5:0] log_res [32];
-	logic [63:0] free_reg ;
-	logic [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag [64];   
-	logic [63:0] reg_ready;  
-} checkpoint;
-
-typedef struct packed{
-	logic valid;
-	mips_core_pkg::AluCtl alu_ctl;
-	logic [ROB_DEPTH_BITS - 1 : 0] tag;
-	logic [ROB_DEPTH_BITS : 0] q_1;
-	logic [ROB_DEPTH_BITS : 0] q_2;
-	logic [ADDR_WIDTH - 1 : 0] pc;
-	logic [31:0] v_1;
-	logic [31:0] v_2;
-} alu_res_stat_entry;
-
-typedef struct packed{
-	logic valid;
-	logic [ROB_DEPTH_BITS - 1 : 0] tag;
-	mips_core_pkg::MemAccessType mem_action;
-	logic [ROB_DEPTH_BITS : 0] q_reg_addr;
-	logic [DATA_WIDTH - 1 :0] v_reg_val;
-	logic [ROB_DEPTH_BITS : 0] q_reg_val;
-	logic [ADDR_WIDTH - 1 : 0] pc;
-	logic [31:0] addr;
-	logic [31:0] offset;
-} mem_res_stat_entry;
-
-typedef struct packed {
-	logic valid;
-	logic [31:0] addr;
-} store_address;
-
-typedef struct packed{
-	logic [ADDR_WIDTH - 1 : 0] pc;
-	logic [31:0] data;
-} inst;
 
 endpackage
