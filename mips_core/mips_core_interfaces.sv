@@ -221,7 +221,7 @@ interface alu_output_ifc ();
 	logic pass;
 	logic fail;
 	logic done;
-	logic mtc0_op;
+	logic [DATA_WIDTH - 1 : 0] mtc0_op;
 
 	modport in  (input valid, tag, result, pass, fail, done, mtc0_op);
 	modport out (output valid, tag, result, pass, fail, done, mtc0_op);

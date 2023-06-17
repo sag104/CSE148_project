@@ -14,6 +14,17 @@ package mips_core_pkg;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 26;
 parameter G_HISTORY_BITS = 12;
+
+parameter ROB_DEPTH_BITS = 5;
+parameter ROB_DEPTH = 1 << ROB_DEPTH_BITS;
+parameter ALU_RES_STAT_DEPTH_BITS = 5;
+parameter ALU_RES_STAT_DEPTH = 1 << ALU_RES_STAT_DEPTH_BITS;
+parameter MEM_RES_STAT_DEPTH_BITS = 2;
+parameter MEM_RES_STAT_DEPTH = 1 << MEM_RES_STAT_DEPTH_BITS;
+parameter INSTRUCTION_QUEUE_DEPTH_BITS = 5;
+parameter INSTRUCTION_QUEUE_DEPTH = 1 << INSTRUCTION_QUEUE_DEPTH_BITS;
+
+/*
 parameter ROB_DEPTH = 4;
 parameter ROB_DEPTH_BITS = 2;
 parameter ALU_RES_STAT_DEPTH = 4;
@@ -21,10 +32,7 @@ parameter ALU_RES_STAT_DEPTH_BITS = 2;
 parameter MEM_RES_STAT_DEPTH = 4;
 parameter MEM_RES_STAT_DEPTH_BITS = 2;
 parameter INSTRUCTION_QUEUE_DEPTH = 4;
-parameter INSTRUCTION_QUEUE_DEPTH_BITS = 2;
-parameter CHECKPOINT_BUFFER_DEPTH = 4;
-parameter CHECKPOINT_BUFFER_DEPTH_BITS = 2;
-
+*/
 typedef enum logic [4:0] {
 	zero = 5'd0,
 	at = 5'd1,
@@ -174,7 +182,7 @@ typedef struct packed {
 
 typedef struct packed{
 	logic [ADDR_WIDTH - 1 : 0] pc;
-	logic [31:0] data;
+	logic [DATA_WIDTH - 1 : 0] data;
 } inst;
 
 endpackage

@@ -31,6 +31,8 @@ module mem_reservation_station (
 
     logic full, empty, ready, st_ready, ld_ready;
 
+    logic add_match;
+
     logic mem_input_valid_reg;
     mips_core_pkg::MemAccessType mem_action_reg;
 	logic [ADDR_WIDTH - 1 : 0] addr_reg;
@@ -38,6 +40,7 @@ module mem_reservation_station (
 	logic [DATA_WIDTH - 1 : 0] data_reg;
     logic [ROB_DEPTH_BITS - 1 : 0] tag_reg, top_tag;
     logic [31:0] address;
+    logic top_ld;
 
     function automatic logic address_match(logic [ADDR_WIDTH - 1 : 0] compare_addr);
         integer i;
@@ -52,6 +55,9 @@ module mem_reservation_station (
     endfunction
 
     always_comb begin
+
+	add_match = address_match(mem_add_table[rd_ptr].addr);
+
         empty           = wr_ptr == rd_ptr;
         empty_spot      = wr_ptr[MEM_RES_STAT_DEPTH_BITS - 1 : 0];
         full            = (wr_ptr[MEM_RES_STAT_DEPTH_BITS-1:0] == rd_ptr[MEM_RES_STAT_DEPTH_BITS-1:0]) 
@@ -65,7 +71,8 @@ module mem_reservation_station (
         st_data_output.mem_addr     = mem_add_table[rd_ptr].addr;
         st_data_output.reg_value    = mem_add_table[rd_ptr].v_reg_val;
 
-        ld_ready    = ready & (mem_add_table[rd_ptr].mem_action == READ) & !(address_match(mem_add_table[rd_ptr].addr));
+	top_ld = (mem_add_table[rd_ptr].mem_action == READ);
+        ld_ready    = ready & top_ld & !add_match;
 
         address = decoder_output.immediate + reg_file_data.rs_data;
 
@@ -208,6 +215,7 @@ module mem_reservation_station (
                     store_queue[sq_wr_ptr].valid <= 1;
                     store_queue[sq_wr_ptr].addr <= mem_add_table[rd_ptr].addr;
                     rd_ptr <= rd_ptr + 1;
+		    sq_wr_ptr <= sq_wr_ptr + 1;
                     mem_add_table[rd_ptr] <= '{default: 0};
                 end else if(ld_ready & !m_hc.stall) begin
                     rd_ptr <= rd_ptr + 1;

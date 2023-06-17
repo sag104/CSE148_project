@@ -1,3 +1,7 @@
+`ifdef SIMULATION
+import "DPI-C" function void stats_event (input string e);
+`endif
+
 module hazard_controller (
     input clk,
     input rst_n,
@@ -361,16 +365,19 @@ module hazard_controller (
         end
     end*/
 
-    /*
+    
     `ifdef SIMULATION
         always_ff @(posedge clk)
         begin
-            if (ic_miss) stats_event("ic_miss");
-            if (ds_miss) stats_event("ds_miss");
-            if (dec_overload) stats_event("dec_overload");
+            //if (ic_miss) stats_event("ic_miss");
+            //if (ds_miss) stats_event("ds_miss");
+            //if (dec_overload) stats_event("dec_overload");
+            if (!inst_q_output.valid) stats_event("ic_miss");
+            if (rob_status.full | alu_res_stat_status.full | mem_res_stat_status.full ) stats_event("system full");
+	    if (double_branch) stats_event("double_branch");
             if (ex_overload) stats_event("ex_overload");
-            if (branch_hit) stats_event("branch_hit");
-            if (lw_hazard) stats_event("lw_hazard");
+            if (branch_pred_hc.correct_pred) stats_event("branch_hit");
+            /*if (lw_hazard) stats_event("lw_hazard");
             if (dc_miss) stats_event("dc_miss");
             if (if_stall) stats_event("if_stall");
             if (if_flush) stats_event("if_flush");
@@ -380,7 +387,7 @@ module hazard_controller (
             if (ex_flush) stats_event("ex_flush");
             if (mem_stall) stats_event("mem_stall");
             if (mem_flush) stats_event("mem_flush");
-        end
-    `endif*/
+        */end
+    `endif
 
 endmodule

@@ -17,12 +17,12 @@ module register_rename (
     logic [63:0] free_reg, free_reg_ch;       // list of physical registers that are free to be remapped
     logic [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag [64];
     logic [ROB_DEPTH_BITS - 1 : 0] reg_phy_rob_tag_ch [64];
-    logic [5:0] active_list [4];
-    logic [5:0] active_list_ch [4];    
+    logic [5:0] active_list [ROB_DEPTH];
+    logic [5:0] active_list_ch [ROB_DEPTH];    
     logic [63:0] reg_ready, reg_ready_ch;      //list of registers that have final value committed
     logic [5:0] free_phy_reg, active_reg, active_reg_ch;
     logic avail_reg;
-    logic [1:0] active_wr_ptr, active_rd_ptr, active_rd_ptr_ch;
+    logic [ROB_DEPTH_BITS - 1 : 0] active_wr_ptr, active_rd_ptr, active_rd_ptr_ch;
     logic cp;
 
     function automatic logic [6:0] first_free_phy_reg();
@@ -112,7 +112,7 @@ module register_rename (
                     end
 
                     if(rob_reg_wr.reg_wr_en & (rob_reg_wr.reg_wr_addr != 0)) begin
-                        for(int i = 0; i < 4; i++) begin
+                        for(int i = 0; i < ROB_DEPTH; i++) begin
                             if(active_rd_ptr != i) begin
                                active_list_ch[i] <= active_list[i];
                             end
@@ -143,7 +143,7 @@ module register_rename (
                         active_rd_ptr <= active_rd_ptr + 1;
                         active_list[active_rd_ptr] <= 0;
                     end else begin
-                        for(int i = 0; i < 4; i++) begin
+                        for(int i = 0; i < ROB_DEPTH; i++) begin
                             active_list_ch[i] <= active_list[i];
                         end
                         free_reg_ch <= free_reg;

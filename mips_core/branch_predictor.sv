@@ -17,7 +17,7 @@ module branch_controller (
 	input req_valid,
 	decoder_output_ifc.in decoder_output,
 	rob_branch_commit_ifc.in rob_branch_commit,
-	input branch_pred_info branch_fb,
+	input branch_pred_storage branch_fb,
 
     output branch_pred_storage branch_pred_output
 );
